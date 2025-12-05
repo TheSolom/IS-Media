@@ -1,32 +1,33 @@
-import jwt from 'jsonwebtoken';
-
+import { verifyToken } from '../services/tokenService.js';
 import CustomError from '../utils/errorHandling.js';
-import * as parseUtil from '../utils/parseUtil.js';
-import TokenBlacklistModel from '../models/tokenBlacklistModel.js';
+import { parseCookies } from '../utils/parseUtil.js';
 
-export default async (req, _res, next) => {
-    try {
-        const { cookie } = req.headers;
+export default function authMiddleware(req, _res, next) {
+    const { cookie } = req.headers;
 
-        if (!cookie)
-            throw new CustomError('You must be logged in', 401);
+    if (!cookie)
+        throw new CustomError('You must be logged in', 401);
 
-        const parsedCookies = parseUtil.parseCookies(cookie);
+    const parsedCookies = parseCookies(cookie);
 
-        const tokenBlacklist = new TokenBlacklistModel();
+    if (!parsedCookies || !parsedCookies.accessToken)
+        throw new CustomError('You must be logged in', 401);
 
-        const [TokenBlacklisted] = await tokenBlacklist.find({ token: parsedCookies.jwt });
+    const token = parsedCookies.accessToken;
 
-        if (TokenBlacklisted.length)
-            throw new CustomError('Login expired', 401);
+    const verifyTokenResult = verifyToken(token);
 
-        const { id } = jwt.verify(parsedCookies.jwt, process.env.JWT_SECRET);
+    if (!verifyTokenResult.success)
+        throw new CustomError('Invalid token, Please login again', 401);
 
-        req.userId = id;
+    const { userId, username, exp } = verifyTokenResult.decoded;
 
-        next();
-    } catch (error) {
-        console.error(error);
-        next(error.status === 401 ? error : new CustomError('Something went wrong while authenticating', 500));
-    }
+    const currentTime = Math.floor(Date.now() / 1000);
+
+    if (exp < currentTime)
+        throw new CustomError('Token expired, Please login again', 401);
+
+    req.user = { id: userId, username };
+
+    next();
 };
