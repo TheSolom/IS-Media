@@ -161,7 +161,6 @@ export async function postPost(req, res, next) {
     }
 }
 
-// eslint-disable-next-line consistent-return
 export async function updatePost(req, res, next) {
     const { title, content } = req.body;
     const { postId } = req.params;
