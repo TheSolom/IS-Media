@@ -49,19 +49,45 @@ export async function getUser(req, res, next) {
 
 export async function updateUser(req, res, next) {
     try {
-        requestValidation(req);
+        const {
+            firstname,
+            lastname,
+            username,
+            email,
+            password,
+            birthDate,
+            gender,
+            about,
+            profilePicture,
+            coverPicture,
+            livesIn,
+            worksAt,
+            relationship
+        } = req.body;
 
-        const getUpdateUserResult = await userService.updateUser(
-            req.userId,
-            req.body
-        );
+        const updateUserResult = await userService.updateUser({
+            id: req.userId,
+            firstname,
+            lastname,
+            username,
+            email,
+            password,
+            birthDate,
+            gender,
+            about,
+            profilePicture,
+            coverPicture,
+            livesIn,
+            worksAt,
+            relationship
+        });
 
-        if (!getUpdateUserResult.success)
-            throw new CustomError(getUpdateUserResult.message, getUpdateUserResult.status);
+        if (!updateUserResult.success)
+            throw new CustomError(updateUserResult.message, updateUserResult.status);
 
         res.status(200).json({
             success: true,
-            message: `Successfully updated user with id '${req.userId}' `,
+            message: 'Successfully updated user',
         });
     } catch (error) {
         next(error);
