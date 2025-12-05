@@ -57,58 +57,25 @@ export const getUser = async (userId) => {
     }
 };
 
-export const updateUser = async (userId, data) => {
-    const { birthDate, profilePicture, coverPicture, livesIn, worksAt, ...rest } = data;
-
-    const renamedData = {
-        ...rest,
-        birth_date: birthDate,
-        profile_picture: profilePicture,
-        cover_picture: coverPicture,
-        lives_in: livesIn,
-        works_at: worksAt
-    };
-
-    if (renamedData.password) {
-        try {
-            renamedData.password = await bcrypt.hash(renamedData.password, 10);
-        } catch (error) {
-            console.error(error);
-            return {
-                success: false,
-                message: 'An error occurred while updating the user',
-                status: 500,
-            };
-        }
-    }
-
-    const userModel = new UserModel();
-
+export const updateUser = async (userNewData) => {
     try {
-        const [userRow] = await userModel.find({ id: userId });
+        const userNewDataHashed = userNewData;
+        userNewDataHashed.password = await bcrypt.hash(userNewData.password, 10);
 
-        if (!userRow.length)
-            return {
-                success: false,
-                message: `No user found with provided id '${userId}' `,
-                status: 404,
-            };
+        const userModel = new UserModel();
 
-        const updateResult = await userModel.update(renamedData, { id: userId });
+        const updateResult = await userModel.update(userNewDataHashed, { id: userNewData.id });
 
-        if (!updateResult.affectedRows) {
-            return {
-                success: false,
-                message: 'Failed to update the user',
-                status: 500,
-            };
-        }
+        if (!updateResult.affectedRows)
+            throw new Error('No user found with provided id');
 
-        if (userRow[0].profile_picture !== profilePicture)
-            await deleteMedia(userRow[0].profile_picture);
+        const [userOldData] = await userModel.find({ id: userNewData.id });
 
-        if (userRow[0].cover_picture !== coverPicture)
-            await deleteMedia(userRow[0].cover_picture);
+        if (userOldData[0].profile_picture !== userNewData.profilePicture)
+            await deleteMedia(userOldData[0].profile_picture);
+
+        if (userOldData[0].cover_picture !== userNewData.coverPicture)
+            await deleteMedia(userOldData[0].cover_picture);
 
         return { success: true };
     } catch (error) {
