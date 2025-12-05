@@ -1,4 +1,5 @@
 import { body, oneOf } from 'express-validator';
+import { isDisposableEmail } from '../services/verificationService.js';
 
 import UserModel from '../models/userModel.js';
 
@@ -39,15 +40,15 @@ export const signupValidation = [
     body('firstname')
         .trim()
         .isLength({ min: 1, max: 45 })
-        .withMessage('Firstname must be between 1-45 characters long')
+        .withMessage('First name must be between 1-45 characters long')
         .isAlpha()
-        .withMessage('Firstname must only contain letters'),
+        .withMessage('First name must only contain letters'),
     body('lastname')
         .trim()
         .isLength({ min: 1, max: 45 })
-        .withMessage('Lastname must be between 1-45 characters long')
+        .withMessage('Last name must be between 1-45 characters long')
         .isAlpha()
-        .withMessage('Lastname must only contain letters'),
+        .withMessage('Last name must only contain letters'),
     body('username')
         .trim()
         .notEmpty()
@@ -68,6 +69,9 @@ export const signupValidation = [
         .isEmail()
         .withMessage('Please enter a valid email address')
         .custom(async (signingEmail) => {
+            if (isDisposableEmail(signingEmail))
+                throw Error('This Email is not allowed to used');
+
             const userModel = new UserModel();
             const [userRow] = await userModel.find({ email: signingEmail });
 
@@ -142,4 +146,14 @@ export const resetPasswordValidation = [
         (signingConfirmPassword, { req }) =>
             signingConfirmPassword === req.body.password
     ),
+];
+
+export const sendOTPValidation = [
+    body('email', "Please enter the account's email address")
+        .normalizeEmail({ gmail_remove_dots: false })
+        .isEmail(),
+    body('purpose')
+        .trim()
+        .isIn(['email_verification', '2fa'])
+        .withMessage('Purpose must be email_verification or 2fa'),
 ];
