@@ -53,11 +53,11 @@ export const getPostComments = async (postId, lastId, limit) => {
     }
 };
 
-export const postPostComment = async (title, content, postId, authorId) => {
+export const postPostComment = async (title, content, postId, authorId, parentId) => {
     const postCommentsModel = new PostCommentsModel();
 
     try {
-        const createResult = await postCommentsModel.create({ title, content, author_id: authorId, post_id: postId });
+        const createResult = await postCommentsModel.create({ title, content, author_id: authorId, post_id: postId, parent_id: parentId });
 
         if (!createResult.affectedRows)
             return {
@@ -72,6 +72,15 @@ export const postPostComment = async (title, content, postId, authorId) => {
         };
     } catch (error) {
         console.error(error);
+
+        if (error.code === 'ER_NO_REFERENCED_ROW_2') {
+            return {
+                success: false,
+                message: 'Referenced post or comment is not found',
+                status: 404
+            };
+        }
+
         return {
             success: false,
             message: 'An error occurred while creating the comment',

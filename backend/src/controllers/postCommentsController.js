@@ -57,7 +57,7 @@ export async function getPostComments(req, res, next) {
 }
 
 export async function postPostComment(req, res, next) {
-    const { title, content, postId } = req.body;
+    const { title, content, postId, parentId } = req.body;
 
     try {
         requestValidation(req);
@@ -67,6 +67,7 @@ export async function postPostComment(req, res, next) {
             content,
             postId,
             req.userId,
+            parentId
         );
 
         if (!postPostCommentResult.success)
@@ -106,7 +107,6 @@ export async function postPostComment(req, res, next) {
     }
 }
 
-// eslint-disable-next-line consistent-return
 export async function updatePostComment(req, res, next) {
     const { title, content } = req.body;
     const { commentId } = req.params;
