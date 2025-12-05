@@ -1,11 +1,12 @@
 import { Router } from 'express';
 
 import {
-    postLogin,
-    postSignup,
-    postLogout,
-    postForgotPassword,
-    patchResetPassword,
+    login,
+    refreshLogin,
+    signup,
+    logout,
+    forgotPassword,
+    resetPassword,
     getUploadSignature,
 } from '../controllers/authController.js';
 import {
@@ -18,19 +19,17 @@ import authMiddleware from '../middlewares/authMiddleware.js';
 
 const router = Router();
 
-router.post('/login', loginValidation, postLogin);
+router.post('/login', loginValidation, login);
 
-router.post('/signup', signupValidation, postSignup);
+router.get('/refresh-token', refreshLogin);
 
-router.post('/logout', postLogout);
+router.post('/signup', signupValidation, signup);
 
-router.post('/forgot-password', forgotPasswordValidation, postForgotPassword);
+router.post('/logout', logout);
 
-router.patch(
-    '/reset-password/:token',
-    resetPasswordValidation,
-    patchResetPassword
-);
+router.post('/forgot-password', forgotPasswordValidation, forgotPassword);
+
+router.patch('/reset-password/:token', resetPasswordValidation, resetPassword);
 
 router.get('/uploadSignature', authMiddleware, getUploadSignature);
 
