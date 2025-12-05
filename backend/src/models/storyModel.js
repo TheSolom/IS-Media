@@ -22,8 +22,8 @@ export default class StoryModel extends BaseModel {
 
     async findUserStories(userId, lastId, limit) {
         const query = `SELECT * FROM ${this.getTableName()} 
-                        WHERE author_id = ? AND id > ? 
-                        ORDER BY created_at DESC, id DESC 
+                        WHERE author_id = ? AND id > ?
+                        ORDER BY created_at DESC, id DESC
                         limit ?`;
 
         const result = await connection.execute(query, [userId, lastId, limit.toString()]);
@@ -31,9 +31,10 @@ export default class StoryModel extends BaseModel {
     }
 
     async findActiveUserStories(userId, lastId, limit) {
-        const query = `SELECT * FROM ${this.getTableName()} 
-                        WHERE author_id = ? AND id > ? AND deleted_at > NOW()
-                        ORDER BY created_at DESC, id DESC 
+        // current time (utc +3)
+        const query = `SELECT * FROM ${this.getTableName()}
+                        WHERE author_id = ? AND id > ? AND deleted_at > NOW() + INTERVAL 3 HOUR
+                        ORDER BY created_at DESC, id DESC
                         limit ?`;
 
         const result = await connection.execute(query, [userId, lastId, limit.toString()]);
@@ -41,9 +42,10 @@ export default class StoryModel extends BaseModel {
     }
 
     async findPastUserStories(userId, lastId, limit) {
-        const query = `SELECT * FROM ${this.getTableName()} 
-                        WHERE author_id = ? AND id > ? AND deleted_at <= NOW()
-                        ORDER BY created_at DESC, id DESC 
+        // current time (utc +3)
+        const query = `SELECT * FROM ${this.getTableName()}
+                        WHERE author_id = ? AND id > ? AND deleted_at <= NOW() + INTERVAL 3 HOUR
+                        ORDER BY created_at DESC, id DESC
                         limit ?`;
 
         const result = await connection.execute(query, [userId, lastId, limit.toString()]);
