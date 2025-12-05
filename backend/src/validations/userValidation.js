@@ -16,37 +16,45 @@ export const updateUserValidation = [
     body('firstname')
         .trim()
         .isLength({ min: 1, max: 45 })
-        .withMessage('Firstname must be between 1-45 characters long')
+        .withMessage('First name must be between 1-45 characters long')
         .isAlpha()
-        .withMessage('Firstname must only contain letters'),
+        .withMessage('First name must only contain letters'),
     body('lastname')
         .trim()
         .isLength({ min: 1, max: 45 })
-        .withMessage('Lastname must be between 1-45 characters long')
+        .withMessage('Last name must be between 1-45 characters long')
         .isAlpha()
-        .withMessage('Lastname must only contain letters'),
+        .withMessage('Last name must only contain letters'),
     body('username')
         .trim()
         .isLength({ min: 5, max: 20 })
         .withMessage('Username must be between 5-20 characters long')
         .isAlphanumeric()
         .withMessage('Username must only contain letters and numbers')
-        .custom(async (signingUsername, { req }) => {
+        .custom(async (username, { req }) => {
             const userModel = new UserModel();
-            const [userRow] = await userModel.find({ username: signingUsername });
 
-            if (userRow.length && userRow[0].id !== req.userId)
+            const [currentUserRow] = await userModel.find({ id: req.userId });
+            if (!currentUserRow[0].is_verified)
+                throw Error('Your account is not verified yet');
+
+            const [foundUserRow] = await userModel.find({ username });
+            if (foundUserRow.length && foundUserRow[0].id !== req.userId)
                 throw Error('This username is already in use, please try another username');
         }),
     body('email')
         .normalizeEmail({ gmail_remove_dots: false })
         .isEmail()
         .withMessage('Please enter a valid email address')
-        .custom(async (signingEmail, { req }) => {
+        .custom(async (email, { req }) => {
             const userModel = new UserModel();
-            const [userRow] = await userModel.find({ email: signingEmail });
 
-            if (userRow.length && userRow[0].id !== req.userId)
+            const [currentUserRow] = await userModel.find({ id: req.userId });
+            if (!currentUserRow[0].is_verified)
+                throw Error('Your account is not verified yet');
+
+            const [foundUserRow] = await userModel.find({ email });
+            if (foundUserRow.length && foundUserRow[0].id !== req.userId)
                 throw Error('This Email is already in use, please try another email');
         }),
     body('password')
@@ -54,13 +62,20 @@ export const updateUserValidation = [
         .isLength({ min: 8, max: 64 })
         .withMessage('Password must be between 8-64 characters long')
         .isAlphanumeric()
-        .withMessage('Password must contains only numbers and letters without spaces'),
+        .withMessage('Password must contains only numbers and letters without spaces')
+        .custom(async (_, { req }) => {
+            const userModel = new UserModel();
+
+            const [currentUserRow] = await userModel.find({ id: req.userId });
+            if (!currentUserRow[0].is_verified)
+                throw Error('Your account is not verified yet');
+        }),
     body('birthDate')
         .isISO8601()
         .withMessage('Birth date must be a valid yyyy-mm-dd date')
-        .custom((signingBirthDate) => {
+        .custom((birthDate) => {
             const age = Math.floor(
-                (new Date() - new Date(signingBirthDate)) / (1000 * 60 * 60 * 24 * 365) // convert ms to years
+                (new Date() - new Date(birthDate)) / (1000 * 60 * 60 * 24 * 365) // convert ms to years
             );
             return age >= 13;
         })
@@ -97,9 +112,9 @@ export const updateUserValidation = [
         .trim()
         .isLength({ min: 1, max: 45 })
         .withMessage('Relationship must be between 1-45 characters long'),
-    body().custom((value, { req }) => {
-        if (Object.keys(req.body).length === 0)
-            throw new Error('No data provided');
+    body().custom((_, { req }) => {
+        if (Object.keys(req.body).length <= 13)
+            throw new Error('Please provide all fields to update');
 
         const allowedFields = [
             'firstname',
