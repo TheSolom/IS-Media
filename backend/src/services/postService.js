@@ -179,6 +179,15 @@ export const postPost = async (title, content, authorId, parentId) => {
         };
     } catch (error) {
         console.error(error);
+
+        if (error.code === 'ER_NO_REFERENCED_ROW_2') {
+            return {
+                success: false,
+                message: 'Referenced post is not found',
+                status: 404,
+            };
+        }
+
         return {
             success: false,
             message: 'An error occurred while creating the post',
