@@ -11,21 +11,44 @@ export default class BaseModel {
         return this.#tableName;
     }
 
-    async find(conditions) {
+    async find(conditions, options = {}) {
+        const {
+            select = '*',
+            join = '',
+            orderBy,
+            limit,
+            offset,
+            groupBy,
+            having
+        } = options;
+
         const conditionKeys = Object.keys(conditions);
 
         if (conditionKeys.length === 0)
             throw new Error('Empty conditions object');
 
+        let query = `SELECT ${select} FROM ${this.getTableName()} `;
+
+        if (join) query += ` ${join} `;
+
         const values = [];
         const clauses = [];
-        let query = `SELECT * FROM ${this.getTableName()} `;
 
         Object.entries(conditions).forEach(([key, value]) => {
             clauses.push(`${key} = ?`);
             values.push(value);
         });
         query += `WHERE ${clauses.join(' AND ')}`;
+
+        if (groupBy) query += ` GROUP BY ${groupBy}`;
+
+        if (having) query += ` HAVING ${having}`;
+
+        if (orderBy) query += ` ORDER BY ${orderBy}`;
+
+        if (limit) query += ` LIMIT ${limit}`;
+
+        if (offset) query += ` OFFSET ${offset}`;
 
         const result = await connection.execute(query, values);
         return result;
