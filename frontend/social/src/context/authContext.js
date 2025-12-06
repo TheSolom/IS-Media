@@ -9,17 +9,25 @@ export const AuthContextProvider = ({ children }) => {
   );
 
   const login = async (inputs) => {
-    const loginRes = await axios.post("https://is-media.onrender.com/api/v1/auth/login", inputs, {
+    const loginRes = await axios.post("http://localhost:5000/api/v1/auth/login", inputs, {
       withCredentials: true,
     });
+
+    if (!loginRes.data.success) {
+      return loginRes.data.cause;
+    }
 
     const userId = loginRes.data.userId;
 
-    const userRes = await axios.get(`https://is-media.onrender.com/api/v1/users/profile/${userId}`, {
+    const userRes = await axios.get(`http://localhost:5000/api/v1/users/${userId}/profile`, {
       withCredentials: true,
     });
-    
-    setCurrentUser(userRes.data.user)
+
+    if (!userRes.data.success) {
+      return loginRes.data.message;
+    }
+
+    setCurrentUser(userRes.data.user);
   };
 
   useEffect(() => {

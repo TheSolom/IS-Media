@@ -59,7 +59,7 @@ const Update = ({ setOpenUpdate, user }) => {
 
     const mutation = useMutation(
         (user) => {
-            return makeRequest.patch('/users/profile', user);
+            return makeRequest.put('/users/profile', user);
         },
         {
             onSuccess: () => {

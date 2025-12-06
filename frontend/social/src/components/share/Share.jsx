@@ -43,12 +43,12 @@ const Share = () => {
     const mutation = useMutation(
         async (newPost) => {
             if (!newPost.img) {
-                return await makeRequest.post(`posts/post`, {
+                return await makeRequest.post(`posts`, {
                     content: newPost.desc,
                 });
             }
 
-            return await makeRequest.post('/posts/post', {
+            return await makeRequest.post('/posts', {
                 title: newPost.desc,
                 content: newPost.img,
             });

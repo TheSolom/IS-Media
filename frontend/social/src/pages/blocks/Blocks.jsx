@@ -40,7 +40,7 @@ const Blocks = () => {
 
     const blockMutation = useMutation(
         (userId) => {
-            return makeRequest.delete(`users/block/${userId}`);
+            return makeRequest.delete(`users/blocks/${userId}`);
         },
         {
             onSuccess: () => {

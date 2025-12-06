@@ -31,7 +31,7 @@ const Profile = () => {
     const { isLoading, error, data } = useQuery(
         ['users'],
         async () => {
-            const response = await makeRequest.get(`users/profile/${userId}`);
+            const response = await makeRequest.get(`users/${userId}/profile`);
 
             if (!response.data) return [];
 
@@ -103,7 +103,7 @@ const Profile = () => {
 
     const blockMutation = useMutation(
         (userId) => {
-            return makeRequest.post(`users/block`, { blockedId: userId });
+            return makeRequest.post(`users/blocks`, { blockedId: userId });
         },
         {
             onSuccess: () => {

@@ -29,11 +29,30 @@ const Post = ({ post }) => {
 
     const { currentUser } = useContext(AuthContext);
 
+    const {
+        data: blockStatus,
+        isLoading: blockStatusLoading,
+        error: blockStatusError,
+    } = useQuery(
+        ['blockStatus', post.parentPost?.author.id],
+        async () => {
+            const response = await makeRequest.get(
+                `users/blocks/${post.parentPost?.author.id}`,
+            );
+            const { blockStatus } = response.data;
+
+            return blockStatus;
+        },
+        {
+            enabled: !!post.parentPost?.author.id,
+        },
+    );
+
     const { isLoading, error, data } = useQuery(
         ['likes', post.id],
         async () => {
             const res = await makeRequest.get(
-                `posts/likes/${post.id}?lastId=${nextPage}&limit=${LIMIT}`,
+                `posts/${post.id}/likes?lastId=${nextPage}&limit=${LIMIT}`,
             );
 
             if (!res.data) return [];
@@ -50,8 +69,9 @@ const Post = ({ post }) => {
 
     const editMutation = useMutation(
         async ({ selectedFile, desc }) => {
+            console.log(selectedFile, desc);
             if (!selectedFile) {
-                return await makeRequest.patch(`posts/post/${post.id}`, {
+                return await makeRequest.put(`posts/${post.id}`, {
                     content: desc,
                 });
             }
@@ -78,7 +98,7 @@ const Post = ({ post }) => {
             const responseData = await uploadResponse.text();
             const parsedData = JSON.parse(responseData);
 
-            return await makeRequest.patch(`posts/post/${post.id}`, {
+            return await makeRequest.put(`posts/${post.id}`, {
                 title: desc,
                 content: parsedData.url,
             });
@@ -110,8 +130,8 @@ const Post = ({ post }) => {
 
     const likeMutation = useMutation(
         (liked) => {
-            if (liked) return makeRequest.delete(`posts/like/${post.id}`);
-            return makeRequest.post('posts/like', { postId: post.id });
+            if (liked) return makeRequest.delete(`posts/${post.id}/likes`);
+            return makeRequest.post('posts/likes', { postId: post.id });
         },
         {
             onSuccess: () => {
@@ -123,7 +143,7 @@ const Post = ({ post }) => {
 
     const deleteMutation = useMutation(
         () => {
-            return makeRequest.delete(`posts/post/${post.id}`);
+            return makeRequest.delete(`posts/${post.id}`);
         },
         {
             onSuccess: () => {
@@ -135,8 +155,9 @@ const Post = ({ post }) => {
 
     const shareMutation = useMutation(
         ({ shareTitle }) => {
-            return makeRequest.post(`posts/post?parentId=${post.id}`, {
+            return makeRequest.post(`posts`, {
                 content: shareTitle,
+                parentId: post.id,
             });
         },
         {
@@ -195,19 +216,21 @@ const Post = ({ post }) => {
             <div className="container">
                 <div className="user">
                     <div className="userInfo">
-                        <img src={post.profile_picture} alt="" />
+                        <img src={post.author.profilePicture} alt="" />
                         <div className="details">
                             <Link
-                                to={`/profile/${post.author_id}`}
+                                to={`/profile/${post.author.id}`}
                                 style={{
                                     textDecoration: 'none',
                                     color: 'inherit',
                                 }}
                             >
-                                <span className="name">{post.username}</span>
+                                <span className="name">
+                                    {post.author.username}
+                                </span>
                             </Link>
                             <span className="date">
-                                {moment(post.created_at).fromNow()}
+                                {moment(post.createdAt).fromNow()}
                             </span>
                         </div>
                     </div>
@@ -216,7 +239,7 @@ const Post = ({ post }) => {
                             style={{ cursor: 'pointer' }}
                             onClick={() => setMenuOpen(!menuOpen)}
                         />
-                        {menuOpen && post.author_id === currentUser.id && (
+                        {menuOpen && post.author.id === currentUser.id && (
                             <button
                                 style={{ color: 'pink' }}
                                 onClick={handleDelete}
@@ -224,7 +247,7 @@ const Post = ({ post }) => {
                                 Delete post
                             </button>
                         )}
-                        {menuOpen && post.author_id === currentUser.id && (
+                        {menuOpen && post.author.id === currentUser.id && (
                             <button onClick={() => setEditing(true)}>
                                 Edit post
                             </button>
@@ -307,49 +330,71 @@ const Post = ({ post }) => {
                         <p>{post.content}</p>
                     )}
                 </div>
-                {post.parent_id ? (
-                    <>
-                        <hr></hr>
-                        <br></br>
-                        <div className="container">
-                            <div className="user">
-                                <div className="userInfo">
-                                    <img
-                                        src={post.parent_profile_picture}
-                                        alt=""
-                                    />
-                                    <div className="details">
-                                        <Link
-                                            to={`/profile/${post.parent_author_id}`}
-                                            style={{
-                                                textDecoration: 'none',
-                                                color: 'inherit',
-                                            }}
-                                        >
-                                            <span className="name">
-                                                {post.parent_username}
+                {post.parentPost?.id ? (
+                    blockStatus ? (
+                        <>
+                            <hr></hr>
+                            <br></br>
+                            <p>This post is blocked</p>
+                            <br></br>
+                            <hr></hr>
+                            <br></br>
+                        </>
+                    ) : (
+                        <>
+                            <hr></hr>
+                            <br></br>
+                            <div className="container">
+                                <div className="user">
+                                    <div className="userInfo">
+                                        <img
+                                            src={
+                                                post.parentPost.author
+                                                    .profilePicture
+                                            }
+                                            alt=""
+                                        />
+                                        <div className="details">
+                                            <Link
+                                                to={`/profile/${post.parentPost.author.id}`}
+                                                style={{
+                                                    textDecoration: 'none',
+                                                    color: 'inherit',
+                                                }}
+                                            >
+                                                <span className="name">
+                                                    {
+                                                        post.parentPost.author
+                                                            .username
+                                                    }
+                                                </span>
+                                            </Link>
+                                            <span className="date">
+                                                {moment(
+                                                    post.parentPost.createdAt,
+                                                ).fromNow()}
                                             </span>
-                                        </Link>
-                                        <span className="date">
-                                            {moment(
-                                                post.parent_created_at,
-                                            ).fromNow()}
-                                        </span>
+                                        </div>
                                     </div>
                                 </div>
+                                <div className="content">
+                                    <p>{post.parentPost.title}</p>
+                                    {post.parentPost.content.startsWith(
+                                        'http',
+                                    ) ? (
+                                        <img
+                                            src={post.parentPost.content}
+                                            alt=""
+                                        />
+                                    ) : (
+                                        <p>{post.parentPost.content}</p>
+                                    )}
+                                </div>
                             </div>
-                            <div className="content">
-                                <p>{post.parent_title}</p>
-                                {post.parent_content.startsWith('http') ? (
-                                    <img src={post.parent_content} alt="" />
-                                ) : (
-                                    <p>{post.parent_content}</p>
-                                )}
-                            </div>
-                        </div>
-                        <hr></hr>
-                        <br></br>
-                    </>
+                            <hr></hr>
+                            <br></br>
+                        </>
+                    )
                 ) : null}
                 <div className="info">
                     <div className="item">

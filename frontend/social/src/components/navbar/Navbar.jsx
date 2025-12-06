@@ -28,7 +28,7 @@ const Navbar = () => {
         const fetchSearchResults = async () => {
             if (searchText) {
                 const response = await makeRequest.get(
-                    `users/search/${searchText}?limit=${LIMIT}`,
+                    `users/${searchText}/search?limit=${LIMIT}`,
                 );
 
                 if (!response.data) {
@@ -73,8 +73,8 @@ const Navbar = () => {
                     {searchResults.length > 0 && (
                         <div className="search-results">
                             {searchResults.map((user) => (
-                                <Link to={`/profile/${user.id}`}>
-                                    <div key={user.id} className="search-item">
+                                <Link to={`/profile/${user.id}`} key={user.id}>
+                                    <div className="search-item">
                                         <img
                                             src={user.profile_picture}
                                             alt=""

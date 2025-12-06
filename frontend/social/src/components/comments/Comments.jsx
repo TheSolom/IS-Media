@@ -20,14 +20,14 @@ const Comments = ({ postId }) => {
 
     const { isLoading, error, data } = useQuery(['comments'], async () => {
         const response = await makeRequest.get(
-            `posts/comments/${postId}?lastId=${nextPage}&limit=${LIMIT}`,
+            `posts/${postId}/comments?lastId=${nextPage}&limit=${LIMIT}`,
         );
 
         if (!response.data) return [];
 
         const { lastId, comments } = response.data;
 
-        // nextPage = lastId;
+        nextPage = lastId;
 
         return comments;
     });
@@ -37,7 +37,7 @@ const Comments = ({ postId }) => {
     const mutation = useMutation(
         async ({ selectedFile, desc, postId }) => {
             if (!selectedFile)
-                return await makeRequest.post('posts/comment', {
+                return await makeRequest.post('posts/comments', {
                     content: desc,
                     postId,
                 });
@@ -64,7 +64,7 @@ const Comments = ({ postId }) => {
             const responseData = await uploadResponse.text();
             const parsedData = JSON.parse(responseData);
 
-            return await makeRequest.post('posts/comment', {
+            return await makeRequest.post('posts/comments', {
                 title: desc,
                 content: parsedData.url,
                 postId,
@@ -80,7 +80,7 @@ const Comments = ({ postId }) => {
 
     const deleteMutation = useMutation(
         (commentId) => {
-            return makeRequest.delete(`posts/comment/${commentId}`);
+            return makeRequest.delete(`posts/comments/${commentId}`);
         },
         {
             onSuccess: () => {

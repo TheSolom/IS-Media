@@ -6,6 +6,7 @@ import { useContext } from 'react';
 import { AuthContext } from '../../context/authContext';
 import { useState } from 'react';
 import moment from 'moment';
+import 'moment-timezone';
 
 const LIMIT = 21;
 let nextPage1 = 0,
@@ -68,7 +69,7 @@ const Stories = () => {
 
     const deleteMutation = useMutation(
         (storyId) => {
-            return makeRequest.delete(`stories/story/${storyId}`);
+            return makeRequest.delete(`stories/${storyId}`);
         },
         {
             onSuccess: () => {
@@ -125,7 +126,7 @@ const Stories = () => {
                                           )}
                                           <span>
                                               {moment(
-                                                  story.created_at,
+                                                  story.createdAt,
                                               ).fromNow()}
                                           </span>
                                       </div>
@@ -190,7 +191,7 @@ const Stories = () => {
                                           )}
                                           <span>
                                               {moment(
-                                                  story.created_at,
+                                                  story.createdAt,
                                               ).fromNow()}
                                           </span>
                                       </div>

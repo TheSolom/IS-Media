@@ -19,7 +19,7 @@ const Posts = ({ userId, isProfile }) => {
             );
         } else {
             response = await makeRequest.get(
-                `posts/user/feed?lastId=${nextPage}&limit=${LIMIT}`,
+                `posts/feed?lastId=${nextPage}&limit=${LIMIT}`,
             );
         }
 

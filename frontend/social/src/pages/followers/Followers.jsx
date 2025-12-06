@@ -69,7 +69,7 @@ const Followers = () => {
 
     const blockMutation = useMutation(
         (userId) => {
-            return makeRequest.post(`users/block`, { blockedId: userId });
+            return makeRequest.post(`users/blocks`, { blockedId: userId });
         },
         {
             onSuccess: () => {

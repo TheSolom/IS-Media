@@ -17,7 +17,7 @@ const Stories = () => {
 
     const { isLoading, error, data } = useQuery(['stories'], async () => {
         const response = await makeRequest.get(
-            `stories/user/feed?lastId=${nextPage}&limit=${LIMIT}`,
+            `stories/feed?lastId=${nextPage}&limit=${LIMIT}`,
         );
 
         if (!response.data) return [];
@@ -34,7 +34,7 @@ const Stories = () => {
     const mutation = useMutation(
         async ({ selectedFile, desc }) => {
             if (!selectedFile) {
-                return await makeRequest.post('stories/story', {
+                return await makeRequest.post('stories', {
                     content: desc,
                 });
             }
@@ -61,7 +61,7 @@ const Stories = () => {
             const responseData = await uploadResponse.text();
             const parsedData = JSON.parse(responseData);
 
-            await makeRequest.post('stories/story', {
+            await makeRequest.post('stories', {
                 content: parsedData.url,
             });
         },
@@ -108,6 +108,12 @@ const Stories = () => {
                     <div className="overlay">
                         <div className="">
                             <input
+                                style={{
+                                    width: '100%',
+                                    padding: '10px',
+                                    borderRadius: '5px',
+                                    border: '1px solid black',
+                                }}
                                 type="text"
                                 placeholder="Write text story content"
                                 value={desc}
@@ -122,7 +128,7 @@ const Stories = () => {
                             <button
                                 style={{
                                     fontFamily: 'sans-serif',
-                                    fontSize: '14px',
+                                    fontSize: '13px',
                                     padding: '5px 10px',
                                     margin: '50px 10px 0px 0px',
                                     backgroundColor: 'white',
@@ -173,7 +179,7 @@ const Stories = () => {
                         ) : (
                             <div className="text-story">{story.content}</div>
                         )}
-                        <span>{story.username}</span>
+                        <span>{story.author.username}</span>
                     </div>
                 ))
             ) : (
