@@ -114,7 +114,7 @@ DISPOSABLE_EMAIL_CHECKER_API_KEY=
 
 ![Registration Page](https://github.com/thesolom/IS-Media/blob/master/assets/screenshots/Social-Registration.png 'Registration Page')
 ![Login Page](https://github.com/thesolom/IS-Media/blob/master/assets/screenshots/Social-Login.png 'Login Page')
-![Home Page](https://github.com/thesolom/IS-Media/blob/master/assets/screenshots/Social-Home.png 'Home Page')
+![Home Page](https://github.com/thesolom/IS-Media/blob/master/assets/screenshots/Social-Home-Page.png 'Home Page')
 ![Dark Mode Home Page](https://github.com/thesolom/IS-Media/blob/master/assets/screenshots/Social-Dark-Mode.png 'Dark Mode Home Page')
 ![Post with Comments](https://github.com/thesolom/IS-Media/blob/master/assets/screenshots/Social-Post-with-Comments.png 'Post with Comments')
 ![Profile Page](https://github.com/thesolom/IS-Media/blob/master/assets/screenshots/Social-Profile.png 'Profile Page')
