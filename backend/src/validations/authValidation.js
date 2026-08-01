@@ -1,5 +1,4 @@
 import { body, oneOf } from 'express-validator';
-import { isDisposableEmail } from '../services/verificationService.js';
 
 import UserModel from '../models/userModel.js';
 
@@ -65,8 +64,6 @@ export const signupValidation = [
         .isEmail()
         .withMessage('Please enter a valid email address')
         .custom(async (signingEmail) => {
-            if (isDisposableEmail(signingEmail)) throw Error('This Email is not allowed to used');
-
             const userModel = new UserModel();
             const [userRow] = await userModel.find({ email: signingEmail });
 

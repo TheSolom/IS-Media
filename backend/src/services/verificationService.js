@@ -6,35 +6,6 @@ import accountVerificationTemplate from '../Templates/Mail/accountVerification.j
 import TokenModel from '../models/tokenModel.js';
 import OTPModel from '../models/otpModel.js';
 
-export const isDisposableEmail = async (email) => {
-    try {
-        const myHeaders = new Headers();
-        myHeaders.append('apikey', process.env.DISPOSABLE_EMAIL_CHECKER_API_KEY);
-
-        const requestOptions = {
-            method: 'GET',
-            redirect: 'follow',
-            headers: myHeaders,
-        };
-
-        const response = await fetch(
-            `https://api.apilayer.com/disposable_email/${email}`,
-            requestOptions,
-        );
-        if (!response.ok) throw new Error('API request failed');
-
-        const result = await response.json();
-        return result.is_disposable;
-    } catch (error) {
-        console.error(error);
-        return {
-            success: false,
-            message: 'An error occurred while verifying the email',
-            status: 500,
-        };
-    }
-};
-
 export const sendEmail = async (mailOptions) => {
     try {
         const info = await transporter.sendMail(mailOptions);
