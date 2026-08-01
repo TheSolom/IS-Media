@@ -73,7 +73,7 @@ export async function refreshLogin(req, res, next) {
 
         const { userId, username } = refreshLoginResult;
 
-        const accessToken = tokenService.createToken(
+        const accessTokenResult = tokenService.createToken(
             {
                 userId,
                 username,
@@ -82,7 +82,7 @@ export async function refreshLogin(req, res, next) {
             process.env.ACCESS_TOKEN_EXPIRES_IN,
         );
 
-        if (!accessToken.success)
+        if (!accessTokenResult.success)
             return {
                 success: false,
                 message: 'An error occurred while refreshing login',
@@ -91,7 +91,7 @@ export async function refreshLogin(req, res, next) {
 
         res.setHeader(
             'Set-Cookie',
-            `accessToken=${accessToken}; Path=/; Max-Age= ${process.env.ACCESS_TOKEN_EXPIRES_IN}; HttpOnly; SameSite=None; Secure`,
+            `accessToken=${accessTokenResult.token}; Path=/; Max-Age=${process.env.ACCESS_TOKEN_EXPIRES_IN}; HttpOnly; SameSite=None; Secure`,
         );
 
         res.status(200).json({
