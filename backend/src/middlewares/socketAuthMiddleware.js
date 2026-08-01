@@ -6,17 +6,19 @@ import * as parseUtil from '../utils/parseUtil.js';
 export default function socketAuthMiddleware(socket, next) {
     const { cookie } = socket.handshake.headers;
 
-    if (!cookie) throw new CustomError('You must be logged in', 401);
+    if (!cookie) {
+        return next(new CustomError('You must be logged in', 401));
+    }
 
     const parsedCookies = parseUtil.parseCookies(cookie);
 
-    if (!parsedCookies || !parsedCookies.jwt) throw new CustomError('You must be logged in', 401);
+    if (!parsedCookies?.jwt) {
+        return next(new CustomError('You must be logged in', 401));
+    }
 
     try {
-        const decoded = jwt.verify(parsedCookies.jwt, process.env.JWT_SECRET);
-
+        const decoded = jwt.verify(parsedCookies.jwt, process.env.ACCESS_TOKEN_SECRET);
         socket.userId = decoded.id;
-
         next();
     } catch (error) {
         console.error(error);
