@@ -38,8 +38,7 @@ app.use(
 app.use(helmet());
 app.use(compression());
 
-if (process.env.NODE_ENV !== 'production') app.use(morgan('dev'));
-else app.use(morgan('combined'));
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
 app.get(['/', '/api', '/api/v1'], (_req, res) => {
     res.status(418).json({
