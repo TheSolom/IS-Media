@@ -7,10 +7,7 @@ import {
     postStory,
     deleteStory,
 } from '../controllers/storyController.js';
-import {
-    getUserStoriesValidation,
-    createStoryValidation,
-} from '../validations/storyValidation.js';
+import { getUserStoriesValidation, createStoryValidation } from '../validations/storyValidation.js';
 import cursorPaginationValidation from '../validations/cursorPaginationValidation.js';
 import authMiddleware from '../middlewares/authMiddleware.js';
 

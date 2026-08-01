@@ -11,7 +11,7 @@ export const getPostLikes = async (postId, lastId, limit) => {
         return {
             success: true,
             lastId: id,
-            likes: likesRows
+            likes: likesRows,
         };
     } catch (error) {
         console.error(error);
@@ -38,7 +38,7 @@ export const postPostLike = async (postId, userId) => {
 
         return {
             success: true,
-            createResult
+            createResult,
         };
     } catch (error) {
         console.error(error);

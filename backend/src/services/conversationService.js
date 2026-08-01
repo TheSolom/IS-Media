@@ -8,7 +8,7 @@ export const searchConversation = async (title, userId, limit) => {
 
         return {
             success: true,
-            conversations: conversationRow
+            conversations: conversationRow,
         };
     } catch (error) {
         console.error(error);
@@ -24,21 +24,18 @@ export const getDMConversation = async (userId1, userId2) => {
     const conversationModel = new ConversationModel();
 
     try {
-        const [conversationRow] = await conversationModel.findDMConversation(
-            userId1,
-            userId2
-        );
+        const [conversationRow] = await conversationModel.findDMConversation(userId1, userId2);
 
         if (!conversationRow.length)
             return {
                 success: false,
                 message: 'No conversation found',
-                status: 404
+                status: 404,
             };
 
         return {
             success: true,
-            conversation: conversationRow[0]
+            conversation: conversationRow[0],
         };
     } catch (error) {
         console.error(error);
@@ -58,7 +55,7 @@ export const getUserConversations = async (userId, lastId, lastDate, limit) => {
             userId,
             lastId,
             lastDate,
-            limit
+            limit,
         );
 
         const id = conversationsRows.length ? conversationsRows.at(-1).id : null;
@@ -90,12 +87,12 @@ export const getConversation = async (conversationId) => {
             return {
                 success: false,
                 message: `No conversation found with provided id '${conversationId}' `,
-                status: 404
+                status: 404,
             };
 
         return {
             success: true,
-            conversation: conversationRow[0]
+            conversation: conversationRow[0],
         };
     } catch (error) {
         console.error(error);
@@ -114,12 +111,12 @@ export const isGroupConversation = async (conversationId) => {
         return {
             success: false,
             message: getConversationResult.message,
-            status: getConversationResult.status
+            status: getConversationResult.status,
         };
 
     return {
         success: true,
-        isGroup: getConversationResult.conversation.type === 2
+        isGroup: getConversationResult.conversation.type === 2,
     };
 };
 
@@ -127,7 +124,12 @@ export const postConversation = async (title, image, type, creatorId) => {
     const conversationModel = new ConversationModel();
 
     try {
-        const createResult = await conversationModel.create({ title, image, type, creator_id: creatorId });
+        const createResult = await conversationModel.create({
+            title,
+            image,
+            type,
+            creator_id: creatorId,
+        });
 
         if (!createResult.affectedRows)
             return {
@@ -138,7 +140,7 @@ export const postConversation = async (title, image, type, creatorId) => {
 
         return {
             success: true,
-            createResult
+            createResult,
         };
     } catch (error) {
         console.error(error);
@@ -169,7 +171,10 @@ export const updateConversation = async (conversationId, title, image) => {
     const conversationModel = new ConversationModel();
 
     try {
-        const updateResult = await conversationModel.update({ title, image }, { id: conversationId });
+        const updateResult = await conversationModel.update(
+            { title, image },
+            { id: conversationId },
+        );
 
         if (!updateResult.affectedRows)
             return {

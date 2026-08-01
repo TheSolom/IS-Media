@@ -13,12 +13,12 @@ export const getPostComment = async (commentId) => {
             return {
                 success: false,
                 message: `No comment found with id '${commentId}' `,
-                status: 404
+                status: 404,
             };
 
         return {
             success: true,
-            comment: commentRow[0]
+            comment: commentRow[0],
         };
     } catch (error) {
         console.error(error);
@@ -41,7 +41,7 @@ export const getPostComments = async (postId, lastId, limit) => {
         return {
             success: true,
             lastId: id,
-            comments: commentsRows
+            comments: commentsRows,
         };
     } catch (error) {
         console.error(error);
@@ -57,7 +57,13 @@ export const postPostComment = async (title, content, postId, authorId, parentId
     const postCommentsModel = new PostCommentsModel();
 
     try {
-        const createResult = await postCommentsModel.create({ title, content, author_id: authorId, post_id: postId, parent_id: parentId });
+        const createResult = await postCommentsModel.create({
+            title,
+            content,
+            author_id: authorId,
+            post_id: postId,
+            parent_id: parentId,
+        });
 
         if (!createResult.affectedRows)
             return {
@@ -68,7 +74,7 @@ export const postPostComment = async (title, content, postId, authorId, parentId
 
         return {
             success: true,
-            createResult
+            createResult,
         };
     } catch (error) {
         console.error(error);
@@ -77,7 +83,7 @@ export const postPostComment = async (title, content, postId, authorId, parentId
             return {
                 success: false,
                 message: 'Referenced post or comment is not found',
-                status: 404
+                status: 404,
             };
         }
 
@@ -109,7 +115,7 @@ export const updatePostComment = async (title, content, commentId, authorId) => 
 
         return {
             success: true,
-            updateResult
+            updateResult,
         };
     } catch (error) {
         console.error(error);

@@ -21,9 +21,19 @@ const router = Router();
 
 router.use(authMiddleware);
 
-router.get('/:conversationId/messages/:message/search', cursorPaginationValidation, searchMessageValidation, searchMessage);
+router.get(
+    '/:conversationId/messages/:message/search',
+    cursorPaginationValidation,
+    searchMessageValidation,
+    searchMessage,
+);
 
-router.get('/:conversationId/messages', cursorPaginationValidation, getMessagesValidation, getMessages);
+router.get(
+    '/:conversationId/messages',
+    cursorPaginationValidation,
+    getMessagesValidation,
+    getMessages,
+);
 
 router.post('/:conversationId/messages', postMessageValidation, postMessage);
 

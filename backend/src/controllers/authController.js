@@ -12,16 +12,16 @@ export async function login(req, res, next) {
     try {
         requestValidation(req);
 
-        const loginResult = await authService.loginUser(
-            emailOrUsername,
-            password
-        );
+        const loginResult = await authService.loginUser(emailOrUsername, password);
 
-        if (!loginResult.success)
-            throw new CustomError(loginResult.message, loginResult.status);
+        if (!loginResult.success) throw new CustomError(loginResult.message, loginResult.status);
 
         if (!loginResult.isVerified) {
-            req.user = { userId: loginResult.userId, username: loginResult.username, email: loginResult.email };
+            req.user = {
+                userId: loginResult.userId,
+                username: loginResult.username,
+                email: loginResult.email,
+            };
 
             return res.status(403).json({
                 success: false,
@@ -29,29 +29,24 @@ export async function login(req, res, next) {
                 user: {
                     id: loginResult.userId,
                     username: loginResult.username,
-                    email: loginResult.email
-                }
+                    email: loginResult.email,
+                },
             });
         }
 
-        const createTokensResult = await tokenService.createLoginTokens(
-            {
-                userId: loginResult.userId,
-                username: loginResult.username,
-                isSecure: true
-            }
-        );
+        const createTokensResult = await tokenService.createLoginTokens({
+            userId: loginResult.userId,
+            username: loginResult.username,
+            isSecure: true,
+        });
 
         if (!createTokensResult.success)
             throw new CustomError('An error occurred while logging in the user', 500);
 
-        res.setHeader(
-            'Set-Cookie',
-            [
-                `accessToken=${createTokensResult.accessToken}; Path=/; Max-Age=${process.env.ACCESS_TOKEN_EXPIRES_IN}; HttpOnly; SameSite=None; Secure`,
-                `refreshToken=${createTokensResult.refreshToken}; Path=/; Max-Age=${process.env.REFRESH_TOKEN_EXPIRES_IN}; HttpOnly; SameSite=None; Secure`
-            ]
-        );
+        res.setHeader('Set-Cookie', [
+            `accessToken=${createTokensResult.accessToken}; Path=/; Max-Age=${process.env.ACCESS_TOKEN_EXPIRES_IN}; HttpOnly; SameSite=None; Secure`,
+            `refreshToken=${createTokensResult.refreshToken}; Path=/; Max-Age=${process.env.REFRESH_TOKEN_EXPIRES_IN}; HttpOnly; SameSite=None; Secure`,
+        ]);
 
         res.status(200).json({
             success: true,
@@ -59,8 +54,8 @@ export async function login(req, res, next) {
             user: {
                 id: loginResult.userId,
                 username: loginResult.username,
-                email: loginResult.email
-            }
+                email: loginResult.email,
+            },
         });
     } catch (error) {
         next(error);
@@ -69,8 +64,7 @@ export async function login(req, res, next) {
 
 export async function refreshLogin(req, res, next) {
     try {
-        if (!req.headers.cookie)
-            throw new CustomError('You must be logged in', 401);
+        if (!req.headers.cookie) throw new CustomError('You must be logged in', 401);
 
         const refreshLoginResult = await authService.refreshLogin(req.headers.cookie);
 
@@ -83,9 +77,9 @@ export async function refreshLogin(req, res, next) {
             {
                 userId,
                 username,
-                isSecure: false
+                isSecure: false,
             },
-            process.env.ACCESS_TOKEN_EXPIRES_IN
+            process.env.ACCESS_TOKEN_EXPIRES_IN,
         );
 
         if (!accessToken.success)
@@ -97,12 +91,12 @@ export async function refreshLogin(req, res, next) {
 
         res.setHeader(
             'Set-Cookie',
-            `accessToken=${accessToken}; Path=/; Max-Age= ${process.env.ACCESS_TOKEN_EXPIRES_IN}; HttpOnly; SameSite=None; Secure`
+            `accessToken=${accessToken}; Path=/; Max-Age= ${process.env.ACCESS_TOKEN_EXPIRES_IN}; HttpOnly; SameSite=None; Secure`,
         );
 
         res.status(200).json({
             success: true,
-            message: 'Successfully refreshed login'
+            message: 'Successfully refreshed login',
         });
     } catch (error) {
         next(error);
@@ -110,8 +104,7 @@ export async function refreshLogin(req, res, next) {
 }
 
 export async function signup(req, res, next) {
-    const { firstname, lastname, username, email, password, birthDate, gender } =
-        req.body;
+    const { firstname, lastname, username, email, password, birthDate, gender } = req.body;
 
     try {
         requestValidation(req);
@@ -123,11 +116,10 @@ export async function signup(req, res, next) {
             email,
             password,
             birthDate,
-            gender
+            gender,
         );
 
-        if (!signupResult.success)
-            throw new CustomError(signupResult.error, signupResult.status);
+        if (!signupResult.success) throw new CustomError(signupResult.error, signupResult.status);
 
         const { insertId: userId } = signupResult.createResult;
 
@@ -139,8 +131,8 @@ export async function signup(req, res, next) {
             user: {
                 id: userId,
                 username,
-                email
-            }
+                email,
+            },
         });
     } catch (error) {
         next(error);
@@ -151,30 +143,29 @@ export async function logout(req, res, next) {
     try {
         const { cookie } = req.headers;
 
-        if (!cookie)
-            throw new CustomError('You must be logged in', 401);
+        if (!cookie) throw new CustomError('You must be logged in', 401);
 
         const parsedCookies = parseCookies(cookie);
 
         if (!parsedCookies || !parsedCookies.accessToken || !parsedCookies.refreshToken)
             throw new CustomError('You must be logged in', 401);
 
-        res
-            .clearCookie('accessToken', {
-                httpOnly: true,
-                sameSite: 'none',
-                secure: true,
-                path: '/',
-            })
+        res.clearCookie('accessToken', {
+            httpOnly: true,
+            sameSite: 'none',
+            secure: true,
+            path: '/',
+        })
             .clearCookie('refreshToken', {
                 httpOnly: true,
                 sameSite: 'none',
                 secure: true,
                 path: '/',
             })
-            .status(200).json({
+            .status(200)
+            .json({
                 success: true,
-                message: 'Successfully logged out'
+                message: 'Successfully logged out',
             });
     } catch (error) {
         next(error);
@@ -205,7 +196,7 @@ export async function forgotPassword(req, res, next) {
 
         res.status(201).json({
             success: true,
-            message: 'Successfully sent password reset link to email'
+            message: 'Successfully sent password reset link to email',
         });
     } catch (error) {
         next(error);
@@ -219,10 +210,7 @@ export async function resetPassword(req, res, next) {
     try {
         requestValidation(req);
 
-        const resetPasswordResult = await authService.resetPassword(
-            token,
-            password
-        );
+        const resetPasswordResult = await authService.resetPassword(token, password);
 
         if (!resetPasswordResult.success)
             throw new CustomError(resetPasswordResult.message, resetPasswordResult.status);

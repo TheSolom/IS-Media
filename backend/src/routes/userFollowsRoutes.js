@@ -30,7 +30,12 @@ router.get('/followers', cursorPaginationValidation, getUserFollowersValidation,
 
 router.get('/followings/:userId/status', isUserFollowerValidation, isUserFollower);
 
-router.get('/followings', cursorPaginationValidation, getUserFollowingsValidation, getUserFollowings);
+router.get(
+    '/followings',
+    cursorPaginationValidation,
+    getUserFollowingsValidation,
+    getUserFollowings,
+);
 
 router.get('/suggested-followings', cursorPaginationValidation, getUserFollowSuggestions);
 

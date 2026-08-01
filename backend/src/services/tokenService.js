@@ -27,9 +27,8 @@ export const blacklistToken = async (token) => {
 
         return {
             success: true,
-            updateResult
+            updateResult,
         };
-
     } catch (error) {
         return {
             success: false,
@@ -54,7 +53,7 @@ export const getToken = async (token) => {
 
         return {
             success: true,
-            token: tokenRow[0]
+            token: tokenRow[0],
         };
     } catch (error) {
         console.error(error);
@@ -69,13 +68,14 @@ export const createToken = (userData, secretKey, expirationDurationSeconds) => {
         });
 
         const currentTimestampSeconds = Math.floor(Date.now() / 1000);
-        const expiryTimestampSeconds = currentTimestampSeconds + parseInt(expirationDurationSeconds, 10);
+        const expiryTimestampSeconds =
+            currentTimestampSeconds + parseInt(expirationDurationSeconds, 10);
         const expirationDate = new Date(expiryTimestampSeconds * 1000);
 
         return {
             success: true,
             token,
-            exp: expirationDate
+            exp: expirationDate,
         };
     } catch (error) {
         console.error(error);
@@ -87,30 +87,32 @@ export const createLoginTokens = async (userData) => {
     const createAccessTokenResult = createToken(
         userData,
         process.env.ACCESS_TOKEN_SECRET,
-        process.env.ACCESS_TOKEN_EXPIRES_IN
+        process.env.ACCESS_TOKEN_EXPIRES_IN,
     );
 
-    if (!createAccessTokenResult.success)
-        return { success: false };
+    if (!createAccessTokenResult.success) return { success: false };
 
     const createRefreshTokenResult = createToken(
         userData,
         process.env.REFRESH_TOKEN_SECRET,
-        process.env.REFRESH_TOKEN_EXPIRES_IN
+        process.env.REFRESH_TOKEN_EXPIRES_IN,
     );
 
-    if (!createRefreshTokenResult.success)
-        return { success: false };
+    if (!createRefreshTokenResult.success) return { success: false };
 
     const tokenModel = new TokenModel();
 
     try {
-        await tokenModel.create({ user_id: userData.userId, token: createRefreshTokenResult.token, expiration_date: createRefreshTokenResult.exp });
+        await tokenModel.create({
+            user_id: userData.userId,
+            token: createRefreshTokenResult.token,
+            expiration_date: createRefreshTokenResult.exp,
+        });
 
         return {
             success: true,
             accessToken: createAccessTokenResult.token,
-            refreshToken: createRefreshTokenResult.token
+            refreshToken: createRefreshTokenResult.token,
         };
     } catch (error) {
         console.error(error);
@@ -119,7 +121,7 @@ export const createLoginTokens = async (userData) => {
             return {
                 success: true,
                 accessToken: createAccessTokenResult.token,
-                refreshToken: createRefreshTokenResult.token
+                refreshToken: createRefreshTokenResult.token,
             };
         }
 
@@ -145,7 +147,7 @@ export const deleteToken = async (token) => {
             };
 
         return {
-            success: true
+            success: true,
         };
     } catch (error) {
         console.error(error);

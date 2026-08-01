@@ -10,7 +10,7 @@ import {
 import {
     getPostCommentsValidation,
     createPostCommentValidation,
-    updatePostCommentValidation
+    updatePostCommentValidation,
 } from '../validations/postCommentsValidation.js';
 import cursorPaginationValidation from '../validations/cursorPaginationValidation.js';
 import authMiddleware from '../middlewares/authMiddleware.js';
@@ -21,7 +21,12 @@ router.use(authMiddleware);
 
 router.get('/comments/:commentId', getPostComment);
 
-router.get('/:postId/comments', cursorPaginationValidation, getPostCommentsValidation, getPostComments);
+router.get(
+    '/:postId/comments',
+    cursorPaginationValidation,
+    getPostCommentsValidation,
+    getPostComments,
+);
 
 router.post('/comments', createPostCommentValidation, postPostComment);
 

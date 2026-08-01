@@ -35,8 +35,7 @@ export const updateUserValidation = [
             const userModel = new UserModel();
 
             const [currentUserRow] = await userModel.find({ id: req.userId });
-            if (!currentUserRow[0].is_verified)
-                throw Error('Your account is not verified yet');
+            if (!currentUserRow[0].is_verified) throw Error('Your account is not verified yet');
 
             const [foundUserRow] = await userModel.find({ username });
             if (foundUserRow.length && foundUserRow[0].id !== req.userId)
@@ -50,8 +49,7 @@ export const updateUserValidation = [
             const userModel = new UserModel();
 
             const [currentUserRow] = await userModel.find({ id: req.userId });
-            if (!currentUserRow[0].is_verified)
-                throw Error('Your account is not verified yet');
+            if (!currentUserRow[0].is_verified) throw Error('Your account is not verified yet');
 
             const [foundUserRow] = await userModel.find({ email });
             if (foundUserRow.length && foundUserRow[0].id !== req.userId)
@@ -67,15 +65,14 @@ export const updateUserValidation = [
             const userModel = new UserModel();
 
             const [currentUserRow] = await userModel.find({ id: req.userId });
-            if (!currentUserRow[0].is_verified)
-                throw Error('Your account is not verified yet');
+            if (!currentUserRow[0].is_verified) throw Error('Your account is not verified yet');
         }),
     body('birthDate')
         .isISO8601()
         .withMessage('Birth date must be a valid yyyy-mm-dd date')
         .custom((birthDate) => {
             const age = Math.floor(
-                (new Date() - new Date(birthDate)) / (1000 * 60 * 60 * 24 * 365) // convert ms to years
+                (new Date() - new Date(birthDate)) / (1000 * 60 * 60 * 24 * 365), // convert ms to years
             );
             return age >= 13;
         })
@@ -91,11 +88,11 @@ export const updateUserValidation = [
         .withMessage('about must be between 1-45 characters long'),
     body('profilePicture')
         .optional()
-        .custom(async (value) => !value ? true : checkImageUrl(value))
+        .custom(async (value) => (!value ? true : checkImageUrl(value)))
         .withMessage('Profile picture must be a URL'),
     body('coverPicture')
         .optional()
-        .custom(async (value) => !value ? true : checkImageUrl(value))
+        .custom(async (value) => (!value ? true : checkImageUrl(value)))
         .withMessage('Cover picture must be a URL'),
     body('livesIn')
         .optional()
@@ -133,8 +130,7 @@ export const updateUserValidation = [
         ];
 
         Object.keys(req.body).forEach((key) => {
-            if (!allowedFields.includes(key))
-                throw new Error(`Field ${key} is not allowed`);
+            if (!allowedFields.includes(key)) throw new Error(`Field ${key} is not allowed`);
         });
 
         return true;

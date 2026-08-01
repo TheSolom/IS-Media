@@ -9,8 +9,7 @@ export async function getPostLikes(req, res, next) {
     const { lastId, limit } = req.query;
 
     try {
-        if (!postId || postId < 1)
-            throw new CustomError('No valid post id is provided', 422);
+        if (!postId || postId < 1) throw new CustomError('No valid post id is provided', 422);
 
         requestValidation(req);
 
@@ -26,7 +25,7 @@ export async function getPostLikes(req, res, next) {
         res.status(getPostLikesResult.likes.length ? 200 : 204).json({
             success: true,
             lastId: getPostLikesResult.lastId,
-            likes: getPostLikesResult.likes
+            likes: getPostLikesResult.likes,
         });
     } catch (error) {
         next(error);
@@ -37,13 +36,9 @@ export async function postPostLike(req, res, next) {
     const postId = Number(req.body.postId);
 
     try {
-        if (!postId || postId < 1)
-            throw new CustomError('No valid post id is provided', 422);
+        if (!postId || postId < 1) throw new CustomError('No valid post id is provided', 422);
 
-        const postPostLikeResult = await postLikesService.postPostLike(
-            postId,
-            req.userId
-        );
+        const postPostLikeResult = await postLikesService.postPostLike(postId, req.userId);
 
         if (!postPostLikeResult.success)
             throw new CustomError(postPostLikeResult.message, postPostLikeResult.status);
@@ -56,7 +51,7 @@ export async function postPostLike(req, res, next) {
         if (getPostTagsResult.tags.length) {
             const { tags: tagsRows } = getPostTagsResult;
 
-            const tagsIds = tagsRows.map(tagRow => tagRow.tag_id);
+            const tagsIds = tagsRows.map((tagRow) => tagRow.tag_id);
 
             const putUserTagsResult = await userTagsService.putUserTags(tagsIds, req.userId);
 
@@ -78,13 +73,9 @@ export async function deletePostLike(req, res, next) {
     const postId = Number(req.params.postId);
 
     try {
-        if (!postId || postId < 1)
-            throw new CustomError('No valid postId id is provided', 422);
+        if (!postId || postId < 1) throw new CustomError('No valid postId id is provided', 422);
 
-        const deletePostLikeResult = await postLikesService.deletePostLike(
-            postId,
-            req.userId
-        );
+        const deletePostLikeResult = await postLikesService.deletePostLike(postId, req.userId);
 
         if (!deletePostLikeResult.success)
             throw new CustomError(deletePostLikeResult.message, deletePostLikeResult.status);
@@ -97,7 +88,7 @@ export async function deletePostLike(req, res, next) {
         if (getPostTagsResult.tags.length) {
             const { tags: tagsRows } = getPostTagsResult;
 
-            const tagsIds = tagsRows.map(tagRow => tagRow.tag_id);
+            const tagsIds = tagsRows.map((tagRow) => tagRow.tag_id);
 
             const deleteUserTagsResult = await userTagsService.deleteUserTags(tagsIds, req.userId);
 

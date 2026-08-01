@@ -4,11 +4,14 @@ export const getRestrictedPermissions = async (conversationId) => {
     const conversationPermissionsModel = new ConversationPermissionsModel();
 
     try {
-        const [permissionsRows] = await conversationPermissionsModel.findConversationRestrictedPermissions(conversationId);
+        const [permissionsRows] =
+            await conversationPermissionsModel.findConversationRestrictedPermissions(
+                conversationId,
+            );
 
         return {
             success: true,
-            restrictedPermissions: permissionsRows
+            restrictedPermissions: permissionsRows,
         };
     } catch (error) {
         console.error(error);
@@ -24,7 +27,10 @@ export const postRestrictedPermission = async (conversationId, permissionId) => 
     const conversationPermissionsModel = new ConversationPermissionsModel();
 
     try {
-        const createResult = await conversationPermissionsModel.create({ conversation_id: conversationId, permission_id: permissionId });
+        const createResult = await conversationPermissionsModel.create({
+            conversation_id: conversationId,
+            permission_id: permissionId,
+        });
 
         if (!createResult.affectedRows)
             return {
@@ -35,7 +41,7 @@ export const postRestrictedPermission = async (conversationId, permissionId) => 
 
         return {
             success: true,
-            createResult
+            createResult,
         };
     } catch (error) {
         console.error(error);
@@ -66,7 +72,10 @@ export const deleteRestrictedPermission = async (conversationId, permissionId) =
     const conversationPermissionsModel = new ConversationPermissionsModel();
 
     try {
-        const deleteResult = await conversationPermissionsModel.delete({ conversation_id: conversationId, permission_id: permissionId });
+        const deleteResult = await conversationPermissionsModel.delete({
+            conversation_id: conversationId,
+            permission_id: permissionId,
+        });
 
         if (!deleteResult.affectedRows)
             return {
@@ -77,7 +86,7 @@ export const deleteRestrictedPermission = async (conversationId, permissionId) =
 
         return {
             success: true,
-            deleteResult
+            deleteResult,
         };
     } catch (error) {
         console.error(error);

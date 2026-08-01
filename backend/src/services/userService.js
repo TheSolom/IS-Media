@@ -11,7 +11,7 @@ export const searchUser = async (username, limit) => {
 
         return {
             success: true,
-            users: usersRows
+            users: usersRows,
         };
     } catch (error) {
         console.error(error);
@@ -45,7 +45,7 @@ export const getUser = async (userId) => {
 
         return {
             success: true,
-            user: userRow[0]
+            user: userRow[0],
         };
     } catch (error) {
         console.error(error);
@@ -66,8 +66,7 @@ export const updateUser = async (userNewData) => {
 
         const updateResult = await userModel.update(userNewDataHashed, { id: userNewData.id });
 
-        if (!updateResult.affectedRows)
-            throw new Error('No user found with provided id');
+        if (!updateResult.affectedRows) throw new Error('No user found with provided id');
 
         const [userOldData] = await userModel.find({ id: userNewData.id });
 

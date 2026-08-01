@@ -8,10 +8,7 @@ export async function getUserBlockStatus(req, res, next) {
     try {
         requestValidation(req);
 
-        const getUserBlocksResult = await userBlocksService.getUserBlockStatus(
-            userId,
-            req.userId,
-        );
+        const getUserBlocksResult = await userBlocksService.getUserBlockStatus(userId, req.userId);
 
         if (!getUserBlocksResult.success)
             throw new CustomError(getUserBlocksResult.message, getUserBlocksResult.status);
@@ -19,7 +16,9 @@ export async function getUserBlockStatus(req, res, next) {
         res.status(200).json({
             success: true,
             blockStatus: !!getUserBlocksResult.blockStatus.length,
-            since: getUserBlocksResult.blockStatus.length ? getUserBlocksResult.blockStatus[0].created_at : null
+            since: getUserBlocksResult.blockStatus.length
+                ? getUserBlocksResult.blockStatus[0].created_at
+                : null,
         });
     } catch (error) {
         next(error);
@@ -35,7 +34,7 @@ export async function getUserBlocks(req, res, next) {
         const getUserBlocksResult = await userBlocksService.getUserBlocks(
             req.userId,
             lastId ?? 0,
-            limit ?? 10
+            limit ?? 10,
         );
 
         if (!getUserBlocksResult.success)
@@ -57,10 +56,7 @@ export async function postUserBlock(req, res, next) {
     try {
         requestValidation(req);
 
-        const postUserBlockResult = await userBlocksService.postUserBlock(
-            blockedId,
-            req.userId
-        );
+        const postUserBlockResult = await userBlocksService.postUserBlock(blockedId, req.userId);
 
         if (!postUserBlockResult.success)
             throw new CustomError(postUserBlockResult.message, postUserBlockResult.status);
@@ -82,7 +78,7 @@ export async function deleteUserBlock(req, res, next) {
 
         const deleteUserBlockResult = await userBlocksService.deleteUserBlock(
             blockedId,
-            req.userId
+            req.userId,
         );
 
         if (!deleteUserBlockResult.success)

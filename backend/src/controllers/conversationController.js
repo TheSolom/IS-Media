@@ -17,11 +17,14 @@ export async function searchConversation(req, res, next) {
         );
 
         if (!searchConversationResult.success)
-            throw new CustomError(searchConversationResult.message, searchConversationResult.status);
+            throw new CustomError(
+                searchConversationResult.message,
+                searchConversationResult.status,
+            );
 
         res.status(searchConversationResult.conversations.length ? 200 : 404).json({
             success: true,
-            conversations: searchConversationResult.conversations
+            conversations: searchConversationResult.conversations,
         });
     } catch (error) {
         next(error);
@@ -42,7 +45,10 @@ export async function getUserConversations(req, res, next) {
         );
 
         if (!getUserConversationsResult.success)
-            throw new CustomError(getUserConversationsResult.message, getUserConversationsResult.status);
+            throw new CustomError(
+                getUserConversationsResult.message,
+                getUserConversationsResult.status,
+            );
 
         res.status(getUserConversationsResult.conversations.length ? 200 : 204).json({
             success: true,
@@ -69,7 +75,7 @@ export async function getConversation(req, res, next) {
 
         res.status(200).json({
             success: true,
-            conversation: getConversationResult.conversation
+            conversation: getConversationResult.conversation,
         });
     } catch (error) {
         next(error);
@@ -80,17 +86,19 @@ export async function getDMConversation(req, res, next) {
     const userId = Number(req.params.userId);
 
     try {
-        if (!userId || userId < 1)
-            throw new CustomError('No valid user id is provided', 422);
+        if (!userId || userId < 1) throw new CustomError('No valid user id is provided', 422);
 
-        const getDMConversationResult = await conversationService.getDMConversation(req.userId, userId);
+        const getDMConversationResult = await conversationService.getDMConversation(
+            req.userId,
+            userId,
+        );
 
         if (!getDMConversationResult.success)
             throw new CustomError(getDMConversationResult.message, getDMConversationResult.status);
 
         res.status(200).json({
             success: true,
-            conversation: getDMConversationResult.conversation
+            conversation: getDMConversationResult.conversation,
         });
     } catch (error) {
         next(error);
@@ -115,9 +123,11 @@ export async function postConversation(req, res, next) {
 
         const { insertId: conversationId } = postConversationResult.createResult;
 
-        await Promise.all(participants.map(participantId =>
-            participantService.postParticipant(participantId, conversationId)
-        ));
+        await Promise.all(
+            participants.map((participantId) =>
+                participantService.postParticipant(participantId, conversationId),
+            ),
+        );
 
         res.status(201).json({
             success: true,
@@ -150,7 +160,7 @@ export async function updateConversation(req, res, next) {
 
         const isGroupAdmin =
             currentConversation.creator_id === req.userId ||
-            await participantService.isGroupAdmin(req.userId, conversationId);
+            (await participantService.isGroupAdmin(req.userId, conversationId));
 
         if (!isGroupAdmin || isGroupAdmin?.success) {
             if (isGroupAdmin?.status === 500)
@@ -172,7 +182,10 @@ export async function updateConversation(req, res, next) {
         );
 
         if (!updateConversationResult.success)
-            throw new CustomError(updateConversationResult.message, updateConversationResult.status);
+            throw new CustomError(
+                updateConversationResult.message,
+                updateConversationResult.status,
+            );
 
         if (image && currentConversation.image !== image)
             await deleteMedia(currentConversation.image);
@@ -205,7 +218,7 @@ export async function deleteConversation(req, res, next) {
 
         const isGroupAdmin =
             currentConversation.creator_id === req.userId ||
-            await participantService.isGroupAdmin(req.userId, conversationId);
+            (await participantService.isGroupAdmin(req.userId, conversationId));
 
         if (!isGroupAdmin.success) {
             if (isGroupAdmin.status === 500)
@@ -220,7 +233,10 @@ export async function deleteConversation(req, res, next) {
         );
 
         if (!deleteConversationResult.success)
-            throw new CustomError(deleteConversationResult.message, deleteConversationResult.status);
+            throw new CustomError(
+                deleteConversationResult.message,
+                deleteConversationResult.status,
+            );
 
         res.status(200).json({
             success: true,

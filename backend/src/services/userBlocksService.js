@@ -9,7 +9,7 @@ export const getUserBlockStatus = async (userId1, userId2) => {
 
         return {
             success: true,
-            blockStatus: blockRow
+            blockStatus: blockRow,
         };
     } catch (error) {
         console.error(error);
@@ -49,7 +49,10 @@ export const postUserBlock = async (blockedId, blockerId) => {
     const userFollowersModel = new UserFollowersModel();
 
     try {
-        const createResult = await userBlocksModel.create({ user_id: blockerId, blocked_id: blockedId });
+        const createResult = await userBlocksModel.create({
+            user_id: blockerId,
+            blocked_id: blockedId,
+        });
 
         if (!createResult.affectedRows)
             return {
@@ -61,7 +64,6 @@ export const postUserBlock = async (blockedId, blockerId) => {
         await userFollowersModel.DeleteFollowStatus(blockedId, blockerId);
 
         return { success: true };
-
     } catch (error) {
         console.error(error);
 
@@ -91,7 +93,10 @@ export const deleteUserBlock = async (blockedId, blockerId) => {
     const userBlocksModel = new UserBlocksModel();
 
     try {
-        const deleteResult = await userBlocksModel.delete({ user_id: blockerId, blocked_id: blockedId });
+        const deleteResult = await userBlocksModel.delete({
+            user_id: blockerId,
+            blocked_id: blockedId,
+        });
 
         if (!deleteResult.affectedRows)
             return {

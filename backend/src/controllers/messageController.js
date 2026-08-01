@@ -1,6 +1,6 @@
 import * as messageService from '../services/messageService.js';
 import * as conversationPermissionsService from '../services/conversationPermissionsService.js';
-import SocketManager from "../socket.js";
+import SocketManager from '../socket.js';
 import CustomError from '../utils/errorHandling.js';
 import requestValidation from '../utils/requestValidation.js';
 
@@ -82,9 +82,8 @@ export async function postMessage(req, res, next) {
     try {
         requestValidation(req);
 
-        const getRestrictedPermissionsResult = await conversationPermissionsService.getRestrictedPermissions(
-            conversationId,
-        );
+        const getRestrictedPermissionsResult =
+            await conversationPermissionsService.getRestrictedPermissions(conversationId);
 
         if (!getRestrictedPermissionsResult.success)
             throw new CustomError('An error occurred while sending the message', 500);
@@ -105,7 +104,7 @@ export async function postMessage(req, res, next) {
 
         const getConversationResult = await messageService.getMessage(
             conversationId,
-            postMessageResult.createResult.insertId
+            postMessageResult.createResult.insertId,
         );
 
         if (!getConversationResult.success)

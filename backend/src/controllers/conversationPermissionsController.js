@@ -7,12 +7,14 @@ export const getRestrictedPermissions = async (req, res, next) => {
     const { conversationId } = req.params;
 
     try {
-        const getRestrictedPermissionsResult = await conversationPermissionsService.getRestrictedPermissions(
-            conversationId
-        );
+        const getRestrictedPermissionsResult =
+            await conversationPermissionsService.getRestrictedPermissions(conversationId);
 
         if (!getRestrictedPermissionsResult.success)
-            throw new CustomError(getRestrictedPermissionsResult.message, getRestrictedPermissionsResult.status);
+            throw new CustomError(
+                getRestrictedPermissionsResult.message,
+                getRestrictedPermissionsResult.status,
+            );
 
         res.status(200).json({
             success: true,
@@ -39,7 +41,7 @@ export const postRestrictedPermission = async (req, res, next) => {
 
         const isGroupAdmin =
             currentConversation.creator_id === req.userId ||
-            await participantService.isGroupAdmin(req.userId, conversationId);
+            (await participantService.isGroupAdmin(req.userId, conversationId));
 
         if (!isGroupAdmin || isGroupAdmin?.success) {
             if (isGroupAdmin?.status === 500)
@@ -48,19 +50,22 @@ export const postRestrictedPermission = async (req, res, next) => {
             throw new CustomError('You are not allowed to restrict this permission', 403);
         }
 
-        const postRestrictedPermissionResult = await conversationPermissionsService.postRestrictedPermission(
-            conversationId,
-            permissionId,
-        );
+        const postRestrictedPermissionResult =
+            await conversationPermissionsService.postRestrictedPermission(
+                conversationId,
+                permissionId,
+            );
 
         if (!postRestrictedPermissionResult.success)
-            throw new CustomError(postRestrictedPermissionResult.message, postRestrictedPermissionResult.status);
+            throw new CustomError(
+                postRestrictedPermissionResult.message,
+                postRestrictedPermissionResult.status,
+            );
 
         res.status(201).json({
             success: true,
             message: 'Conversation permission restricted successfully',
         });
-
     } catch (error) {
         next(error);
     }
@@ -82,7 +87,7 @@ export const deleteRestrictedPermission = async (req, res, next) => {
 
         const isGroupAdmin =
             currentConversation.creator_id === req.userId ||
-            await participantService.isGroupAdmin(req.userId, conversationId);
+            (await participantService.isGroupAdmin(req.userId, conversationId));
 
         if (!isGroupAdmin || isGroupAdmin?.success) {
             if (isGroupAdmin?.status === 500)
@@ -91,13 +96,17 @@ export const deleteRestrictedPermission = async (req, res, next) => {
             throw new CustomError('You are not allowed to enable this permission', 403);
         }
 
-        const deleteRestrictedPermissionResult = await conversationPermissionsService.deleteRestrictedPermission(
-            conversationId,
-            permissionId,
-        );
+        const deleteRestrictedPermissionResult =
+            await conversationPermissionsService.deleteRestrictedPermission(
+                conversationId,
+                permissionId,
+            );
 
         if (!deleteRestrictedPermissionResult.success)
-            throw new CustomError(deleteRestrictedPermissionResult.message, deleteRestrictedPermissionResult.status);
+            throw new CustomError(
+                deleteRestrictedPermissionResult.message,
+                deleteRestrictedPermissionResult.status,
+            );
 
         res.status(200).json({
             success: true,

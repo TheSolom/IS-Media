@@ -12,7 +12,7 @@ export const getPostTags = async (postId) => {
 
         return {
             success: true,
-            tags: tagsRows
+            tags: tagsRows,
         };
     } catch (error) {
         console.error(error);
@@ -37,7 +37,7 @@ export const getTagPosts = async (tag, lastId, limit) => {
         return {
             success: true,
             lastId: id,
-            posts
+            posts,
         };
     } catch (error) {
         console.error(error);
@@ -66,8 +66,7 @@ export const postPostTags = async (tags, postId) => {
         const createTagsPromises = tags.map(async (tag) => {
             const tagNormalized = tag.substring(1).toLowerCase();
 
-            if (!validator.isAlphanumeric(tagNormalized))
-                return Promise.resolve();
+            if (!validator.isAlphanumeric(tagNormalized)) return Promise.resolve();
 
             const [tagRow] = await tagsModel.find({ tag: tagNormalized });
 
@@ -86,7 +85,9 @@ export const postPostTags = async (tags, postId) => {
 
         const createPostTagsResults = await Promise.allSettled(createTagsPromises);
 
-        const rejectedPromises = createPostTagsResults.filter(result => result.status === 'rejected');
+        const rejectedPromises = createPostTagsResults.filter(
+            (result) => result.status === 'rejected',
+        );
 
         if (rejectedPromises.length) {
             console.error('Some tags failed to be added:', rejectedPromises);
@@ -100,7 +101,7 @@ export const postPostTags = async (tags, postId) => {
         return {
             success: true,
             message: 'Successfully added tags to the post',
-            tagsIds
+            tagsIds,
         };
     } catch (error) {
         console.error(error);
@@ -118,13 +119,13 @@ export const deletePostTags = async (postId, tagsIds) => {
     try {
         if (tagsIds) {
             const deleteTagsPromises = tagsIds.map(async (tagId) =>
-                postTagsModel.delete({ post_id: postId, tag_id: tagId })
+                postTagsModel.delete({ post_id: postId, tag_id: tagId }),
             );
 
             const deleteTagsResults = await Promise.allSettled(deleteTagsPromises);
 
             const rejectedPromises = deleteTagsResults.filter(
-                (promise) => promise.status === 'rejected'
+                (promise) => promise.status === 'rejected',
             );
 
             if (rejectedPromises.length) {
@@ -135,8 +136,7 @@ export const deletePostTags = async (postId, tagsIds) => {
                     status: 500,
                 };
             }
-        }
-        else {
+        } else {
             const deleteResult = postTagsModel.delete({ post_id: postId });
 
             if (!deleteResult.affectedRows)

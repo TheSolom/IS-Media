@@ -28,7 +28,7 @@ export const checkUser = async (emailOrUsername) => {
 
         return {
             success: true,
-            user: userRow[0]
+            user: userRow[0],
         };
     } catch (error) {
         console.error(error);
@@ -66,7 +66,7 @@ export const loginUser = async (emailOrUsername, password) => {
         isVerified: user.is_verified,
         userId: user.id,
         username: user.username,
-        email: user.email
+        email: user.email,
     };
 };
 
@@ -91,7 +91,11 @@ export const refreshLogin = async (cookies) => {
             status: 401,
         };
 
-    const { userId: decodedUserId, username: decodedUsername, exp: decodedExp } = verifyTokenResult.decoded;
+    const {
+        userId: decodedUserId,
+        username: decodedUsername,
+        exp: decodedExp,
+    } = verifyTokenResult.decoded;
 
     const currentTime = Math.floor(Date.now() / 1000);
 
@@ -131,11 +135,19 @@ export const refreshLogin = async (cookies) => {
     return {
         success: true,
         userId: decodedUserId,
-        username: decodedUsername
+        username: decodedUsername,
     };
 };
 
-export const signupUser = async (firstname, lastname, username, email, password, birthDate, gender) => {
+export const signupUser = async (
+    firstname,
+    lastname,
+    username,
+    email,
+    password,
+    birthDate,
+    gender,
+) => {
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -155,7 +167,7 @@ export const signupUser = async (firstname, lastname, username, email, password,
 
         return {
             success: true,
-            createResult
+            createResult,
         };
     } catch (error) {
         console.error(error);
@@ -202,7 +214,10 @@ export const resetPassword = async (token, password) => {
 
         const userModel = new UserModel();
 
-        const updateResult = await userModel.update({ password: hashedPassword }, { id: tokenRow.user_id });
+        const updateResult = await userModel.update(
+            { password: hashedPassword },
+            { id: tokenRow.user_id },
+        );
 
         if (!updateResult.affectedRows)
             return {

@@ -4,11 +4,15 @@ export const searchParticipant = async (conversationId, username, limit) => {
     const participantModel = new ParticipantModel();
 
     try {
-        const [participantsRows] = await participantModel.searchParticipant(conversationId, username, limit);
+        const [participantsRows] = await participantModel.searchParticipant(
+            conversationId,
+            username,
+            limit,
+        );
 
         return {
             success: true,
-            participants: participantsRows
+            participants: participantsRows,
         };
     } catch (error) {
         console.error(error);
@@ -35,7 +39,7 @@ export const getParticipant = async (userId, conversationId) => {
 
         return {
             success: true,
-            participant: participantRow[0]
+            participant: participantRow[0],
         };
     } catch (error) {
         console.error(error);
@@ -55,7 +59,7 @@ export const getParticipants = async (conversationId) => {
 
         return {
             success: true,
-            participants: participantsRows
+            participants: participantsRows,
         };
     } catch (error) {
         console.error(error);
@@ -75,7 +79,7 @@ export const getAdminParticipants = async (conversationId) => {
 
         return {
             success: true,
-            participants: participantsRows
+            participants: participantsRows,
         };
     } catch (error) {
         console.error(error);
@@ -95,7 +99,7 @@ export const getPastParticipants = async (conversationId) => {
 
         return {
             success: true,
-            participants: participantsRows
+            participants: participantsRows,
         };
     } catch (error) {
         console.error(error);
@@ -114,7 +118,7 @@ export const isGroupAdmin = async (userId, conversationId) => {
         return {
             success: false,
             message: getParticipantResult.message,
-            status: getParticipantResult.status
+            status: getParticipantResult.status,
         };
 
     return {
@@ -127,7 +131,10 @@ export const postParticipant = async (userId, conversationId) => {
     const participantModel = new ParticipantModel();
 
     try {
-        const createResult = await participantModel.create({ user_id: userId, conversation_id: conversationId });
+        const createResult = await participantModel.create({
+            user_id: userId,
+            conversation_id: conversationId,
+        });
 
         if (!createResult.affectedRows)
             return {
@@ -138,7 +145,7 @@ export const postParticipant = async (userId, conversationId) => {
 
         return {
             success: true,
-            createResult
+            createResult,
         };
     } catch (error) {
         console.error(error);
@@ -169,7 +176,10 @@ export const deleteParticipant = async (participantId, conversationId) => {
     const participantModel = new ParticipantModel();
 
     try {
-        const deleteResult = await participantModel.update({ deleted_at: new Date() }, { id: participantId, conversation_id: conversationId });
+        const deleteResult = await participantModel.update(
+            { deleted_at: new Date() },
+            { id: participantId, conversation_id: conversationId },
+        );
 
         if (!deleteResult.affectedRows)
             return {

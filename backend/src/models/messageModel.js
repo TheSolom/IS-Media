@@ -11,7 +11,11 @@ export default class MessageModel extends BaseModel {
                         WHERE conversation_id = ? AND content LIKE ?
                         LIMIT ?`;
 
-        const result = await connection.execute(query, [conversationId, `%${content}%`, limit.toString()]);
+        const result = await connection.execute(query, [
+            conversationId,
+            `%${content}%`,
+            limit.toString(),
+        ]);
         return result;
     }
 
@@ -63,20 +67,26 @@ export default class MessageModel extends BaseModel {
                             ON pu.id = m.sender_id
                         WHERE 
                             ${this.getTableName()}.conversation_id = ?
-                            ${lastId && lastDate ? `
+                            ${
+                                lastId && lastDate
+                                    ? `
                                 AND
                                 (
                                     (${this.getTableName()}.created_at < ?)
                                     OR
                                     (${this.getTableName()}.created_at = ? AND ${this.getTableName()}.id < ?)
-                                )` : ''}
+                                )`
+                                    : ''
+                            }
                         ORDER BY
                             ${this.getTableName()}.created_at DESC,
                             ${this.getTableName()}.id DESC
                         LIMIT ?`;
 
-        const params = lastId && lastDate ?
-            [conversationId, new Date(lastDate), new Date(lastDate), lastId, limit.toString()] : [conversationId, limit.toString()];
+        const params =
+            lastId && lastDate
+                ? [conversationId, new Date(lastDate), new Date(lastDate), lastId, limit.toString()]
+                : [conversationId, limit.toString()];
         const result = await connection.execute(query, params);
         return result;
     }

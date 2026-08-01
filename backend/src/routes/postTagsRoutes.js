@@ -1,9 +1,6 @@
 import { Router } from 'express';
 
-import {
-    getPostTags,
-    getTagPosts,
-} from '../controllers/postTagsController.js';
+import { getPostTags, getTagPosts } from '../controllers/postTagsController.js';
 import getTagPostsValidation from '../validations/postTagsValidation.js';
 import cursorPaginationValidation from '../validations/cursorPaginationValidation.js';
 import authMiddleware from '../middlewares/authMiddleware.js';

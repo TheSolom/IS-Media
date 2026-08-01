@@ -8,19 +8,21 @@ const messageMapper = (messageRow) => ({
     author: {
         id: messageRow.sender_id,
         username: messageRow.username,
-        profilePicture: messageRow.profile_picture
+        profilePicture: messageRow.profile_picture,
     },
-    parentMessage: messageRow.parent_id ? {
-        id: messageRow.parent_id,
-        content: messageRow.parent_content,
-        image: messageRow.parent_image,
-        createdAt: messageRow.parent_created_at,
-        author: {
-            id: messageRow.parent_sender_id,
-            username: messageRow.parent_username,
-            profilePicture: messageRow.parent_profile_picture
-        }
-    } : null
+    parentMessage: messageRow.parent_id
+        ? {
+              id: messageRow.parent_id,
+              content: messageRow.parent_content,
+              image: messageRow.parent_image,
+              createdAt: messageRow.parent_created_at,
+              author: {
+                  id: messageRow.parent_sender_id,
+                  username: messageRow.parent_username,
+                  profilePicture: messageRow.parent_profile_picture,
+              },
+          }
+        : null,
 });
 
 export default messageMapper;

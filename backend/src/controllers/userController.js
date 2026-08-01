@@ -9,10 +9,7 @@ export async function searchUser(req, res, next) {
     try {
         requestValidation(req);
 
-        const searchUserResult = await userService.searchUser(
-            username,
-            limit ?? 10
-        );
+        const searchUserResult = await userService.searchUser(username, limit ?? 10);
 
         if (!searchUserResult.success)
             throw new CustomError(searchUserResult.message, searchUserResult.status);
@@ -30,8 +27,7 @@ export async function getUser(req, res, next) {
     const userId = Number(req.params.userId);
 
     try {
-        if (!userId || userId < 1)
-            throw new CustomError('No valid user id is provided', 422);
+        if (!userId || userId < 1) throw new CustomError('No valid user id is provided', 422);
 
         const getUserResult = await userService.getUser(userId);
 
@@ -62,7 +58,7 @@ export async function updateUser(req, res, next) {
             coverPicture,
             livesIn,
             worksAt,
-            relationship
+            relationship,
         } = req.body;
 
         const updateUserResult = await userService.updateUser({
@@ -79,7 +75,7 @@ export async function updateUser(req, res, next) {
             coverPicture,
             livesIn,
             worksAt,
-            relationship
+            relationship,
         });
 
         if (!updateUserResult.success)

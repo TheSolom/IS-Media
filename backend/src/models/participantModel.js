@@ -18,7 +18,11 @@ export default class ParticipantModel extends BaseModel {
                             AND users.username LIKE ?
                         LIMIT ?`;
 
-        const result = await connection.execute(query, [conversationId, `%${username}%`, limit.toString()]);
+        const result = await connection.execute(query, [
+            conversationId,
+            `%${username}%`,
+            limit.toString(),
+        ]);
         return result;
     }
 

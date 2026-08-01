@@ -8,7 +8,7 @@ export const getMostUsedTags = async (userId, limit) => {
 
         return {
             success: true,
-            tags: mostUsedTagsRows
+            tags: mostUsedTagsRows,
         };
     } catch (error) {
         console.error(error);
@@ -33,13 +33,13 @@ export const putUserTags = async (tagsIds, userId) => {
 
     try {
         const incrementTagsPromises = tagsIds.map(async (tagId) =>
-            userTagsModel.incrementUsedTag(userId, tagId)
+            userTagsModel.incrementUsedTag(userId, tagId),
         );
 
         const incrementTagsResults = await Promise.allSettled(incrementTagsPromises);
 
         const rejectedPromises = incrementTagsResults.filter(
-            (promise) => promise.status === 'rejected'
+            (promise) => promise.status === 'rejected',
         );
 
         if (rejectedPromises.length) {
@@ -87,7 +87,7 @@ export const deleteUserTags = async (tagsIds, userId) => {
         const decrementTagsResults = await Promise.allSettled(decrementTagsPromises);
 
         const rejectedPromises = decrementTagsResults.filter(
-            (promise) => promise.status === 'rejected'
+            (promise) => promise.status === 'rejected',
         );
 
         if (rejectedPromises.length) {

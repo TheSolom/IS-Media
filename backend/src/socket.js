@@ -21,39 +21,37 @@ export default class SocketManager {
         this.#onUserConnection();
     }
 
-    static getInstance (io) {
-        if (!SocketManager.#instance && io)
-            SocketManager.#instance = new SocketManager(io);
+    static getInstance(io) {
+        if (!SocketManager.#instance && io) SocketManager.#instance = new SocketManager(io);
 
         return SocketManager.#instance;
     }
 
-    static getUserSocketId (userId) {
+    static getUserSocketId(userId) {
         return this.#userSocketMap[userId];
     }
 
-    initializeAuthMiddleware () {
+    initializeAuthMiddleware() {
         SocketManager.#io.use(socketAuthMiddleware);
     }
 
-    initializeErrorMiddleware () {
+    initializeErrorMiddleware() {
         SocketManager.#io.use((socket, next) => {
             this.#socket.errorHandler = (error) => {
-                socket.emit("error", { success: false, message: error });
+                socket.emit('error', { success: false, message: error });
             };
 
             next();
         });
     }
 
-    #onUserConnection () {
+    #onUserConnection() {
         SocketManager.#io.on('connection', async (socket) => {
             this.#socket = socket;
 
             const { userId } = this.#socket.handshake.query;
 
-            if (userId)
-                SocketManager.#userSocketMap[userId] = this.#socket.id;
+            if (userId) SocketManager.#userSocketMap[userId] = this.#socket.id;
 
             SocketManager.#io.emit('getOnlineUsers', SocketManager.#userSocketMap);
 
@@ -62,29 +60,26 @@ export default class SocketManager {
         });
     }
 
-    #onUserDisconnection () {
+    #onUserDisconnection() {
         this.#socket.on('disconnect', () => {
             const { userId } = this.#socket.handshake.query;
 
-            if (userId)
-                delete SocketManager.#userSocketMap[userId];
+            if (userId) delete SocketManager.#userSocketMap[userId];
 
             SocketManager.#io.emit('getOnlineUsers', SocketManager.#userSocketMap);
         });
     }
 
-    #onUserJoinConversations () {
+    #onUserJoinConversations() {
         this.#socket.on('joinConversations', (conversationsIds) => {
-            if (!conversationsIds || !conversationsIds.length)
-                return;
+            if (!conversationsIds || !conversationsIds.length) return;
 
             this.#socket.join(conversationsIds);
         });
     }
 
-    emitNewMessage (message, conversationId) {
-        if (!message || !conversationId)
-            return;
+    emitNewMessage(message, conversationId) {
+        if (!message || !conversationId) return;
 
         SocketManager.#io.to(conversationId).emit('newMessage', message);
     }

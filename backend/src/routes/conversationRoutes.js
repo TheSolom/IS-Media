@@ -12,7 +12,7 @@ import {
 import {
     searchConversationValidation,
     postConversationValidation,
-    updateConversationValidation
+    updateConversationValidation,
 } from '../validations/conversationValidation.js';
 import cursorPaginationValidation from '../validations/cursorPaginationValidation.js';
 import authMiddleware from '../middlewares/authMiddleware.js';
@@ -21,7 +21,12 @@ const router = Router();
 
 router.use(authMiddleware);
 
-router.get('/:title/search', cursorPaginationValidation, searchConversationValidation, searchConversation);
+router.get(
+    '/:title/search',
+    cursorPaginationValidation,
+    searchConversationValidation,
+    searchConversation,
+);
 
 router.get('/', cursorPaginationValidation, getUserConversations);
 

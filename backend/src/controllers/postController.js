@@ -18,7 +18,7 @@ export async function getUserPosts(req, res, next) {
         const getUserPostsResult = await postService.getUserPosts(
             userId ?? req.userId,
             lastId ?? 0,
-            limit ?? 10
+            limit ?? 10,
         );
 
         if (!getUserPostsResult.success)
@@ -27,7 +27,7 @@ export async function getUserPosts(req, res, next) {
         res.status(getUserPostsResult.posts.length ? 200 : 204).json({
             success: true,
             lastId: getUserPostsResult.lastId,
-            posts: getUserPostsResult.posts
+            posts: getUserPostsResult.posts,
         });
     } catch (error) {
         next(error);
@@ -43,7 +43,7 @@ export async function getFeedPosts(req, res, next) {
         const getFeedPostsResult = await postService.getFeedPosts(
             req.userId,
             lastId ?? 0,
-            limit ?? 10
+            limit ?? 10,
         );
 
         if (!getFeedPostsResult.success)
@@ -65,17 +65,14 @@ export async function getSuggestedPosts(req, res, next) {
     try {
         requestValidation(req);
 
-        const getMostUsedTagsResult = await userTagsService.getMostUsedTags(
-            req.userId,
-            limit ?? 5
-        );
+        const getMostUsedTagsResult = await userTagsService.getMostUsedTags(req.userId, limit ?? 5);
 
         const { tags: tagsRows } = getMostUsedTagsResult;
 
         const getSuggestedPostsResult = await postService.getSuggestedPosts(
             tagsRows,
             req.userId,
-            limit ?? 5
+            limit ?? 5,
         );
 
         if (!getSuggestedPostsResult.success)
@@ -94,8 +91,7 @@ export async function getPost(req, res, next) {
     const postId = Number(req.params.postId);
 
     try {
-        if (!postId || postId < 1)
-            throw new CustomError('No valid post id is provided', 422);
+        if (!postId || postId < 1) throw new CustomError('No valid post id is provided', 422);
 
         const getPostResult = await postService.getPost(postId);
 
@@ -104,7 +100,7 @@ export async function getPost(req, res, next) {
 
         res.status(200).json({
             success: true,
-            post: getPostResult.post
+            post: getPostResult.post,
         });
     } catch (error) {
         next(error);
@@ -117,12 +113,7 @@ export async function postPost(req, res, next) {
     try {
         requestValidation(req);
 
-        const postPostResult = await postService.postPost(
-            title,
-            content,
-            req.userId,
-            parentId
-        );
+        const postPostResult = await postService.postPost(title, content, req.userId, parentId);
 
         if (!postPostResult.success)
             throw new CustomError(postPostResult.message, postPostResult.status);
@@ -173,8 +164,7 @@ export async function updatePost(req, res, next) {
         if (!getPostResult.success) {
             if (getPostResult.status === 404)
                 throw new CustomError(getPostResult.message, getPostResult.status);
-            else
-                throw new CustomError('An error occurred while updating the post', 500);
+            else throw new CustomError('An error occurred while updating the post', 500);
         }
 
         const { post: currentPost } = getPostResult;
@@ -193,7 +183,7 @@ export async function updatePost(req, res, next) {
         if (!getPostTagsResult.success)
             throw new CustomError('An error occurred while updating the post', 500);
 
-        const postTagsIds = getPostTagsResult.tags.map(tag => tag.tag_id);
+        const postTagsIds = getPostTagsResult.tags.map((tag) => tag.tag_id);
 
         if (postTagsIds.length) {
             const deletePostTagsResult = await postTagsService.deletePostTags(postId, postTagsIds);
@@ -201,17 +191,16 @@ export async function updatePost(req, res, next) {
             if (!deletePostTagsResult.success)
                 throw new CustomError('An error occurred while updating the post', 500);
 
-            const deleteUserTagsResult = await userTagsService.deleteUserTags(postTagsIds, req.userId);
+            const deleteUserTagsResult = await userTagsService.deleteUserTags(
+                postTagsIds,
+                req.userId,
+            );
 
             if (!deleteUserTagsResult.success)
                 throw new CustomError('An error occurred while updating the post', 500);
         }
 
-        const updatePostResult = await postService.updatePost(
-            title,
-            content,
-            postId,
-        );
+        const updatePostResult = await postService.updatePost(title, content, postId);
 
         if (!updatePostResult.success)
             throw new CustomError(updatePostResult.message, updatePostResult.status);
@@ -258,16 +247,14 @@ export async function deletePost(req, res, next) {
     const postId = Number(req.params.postId);
 
     try {
-        if (!postId || postId < 1)
-            throw new CustomError('No valid post id is provided', 422);
+        if (!postId || postId < 1) throw new CustomError('No valid post id is provided', 422);
 
         const getPostResult = await postService.getPost(postId);
 
         if (!getPostResult.success) {
             if (getPostResult.status === 404)
                 throw new CustomError(getPostResult.message, getPostResult.status);
-            else
-                throw new CustomError('An error occurred while deleting the post', 500);
+            else throw new CustomError('An error occurred while deleting the post', 500);
         }
 
         const { post: currentPost } = getPostResult;
@@ -280,7 +267,7 @@ export async function deletePost(req, res, next) {
         if (!getPostTagsResult.success)
             throw new CustomError('An error occurred while deleting the post', 500);
 
-        const postTagsIds = getPostTagsResult.tags.map(tag => tag.tag_id);
+        const postTagsIds = getPostTagsResult.tags.map((tag) => tag.tag_id);
 
         if (postTagsIds.length) {
             const deletePostTagsResult = await postTagsService.deletePostTags(postId, postTagsIds);
@@ -288,16 +275,16 @@ export async function deletePost(req, res, next) {
             if (!deletePostTagsResult.success)
                 throw new CustomError('An error occurred while deleting the post', 500);
 
-            const deleteUserTagsResult = await userTagsService.deleteUserTags(postTagsIds, req.userId);
+            const deleteUserTagsResult = await userTagsService.deleteUserTags(
+                postTagsIds,
+                req.userId,
+            );
 
             if (!deleteUserTagsResult.success)
                 throw new CustomError('An error occurred while deleting the post', 500);
         }
 
-        const deletePostResult = await postService.deletePost(
-            postId,
-            req.userId
-        );
+        const deletePostResult = await postService.deletePost(postId, req.userId);
 
         if (!deletePostResult.success)
             throw new CustomError(deletePostResult.message, deletePostResult.status);

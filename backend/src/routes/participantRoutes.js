@@ -20,7 +20,12 @@ const router = Router();
 
 router.use(authMiddleware);
 
-router.get('/:conversationId/participants/:username/search', cursorPaginationValidation, searchParticipantValidation, searchParticipant);
+router.get(
+    '/:conversationId/participants/:username/search',
+    cursorPaginationValidation,
+    searchParticipantValidation,
+    searchParticipant,
+);
 
 router.get('/:conversationId/participants/:userId', getParticipant);
 
@@ -28,6 +33,10 @@ router.get('/:conversationId/participants', getParticipantsValidation, getPartic
 
 router.post('/:conversationId/participants', postParticipantsValidation, postParticipant);
 
-router.delete('/:conversationId/participants/:participantId', deleteParticipantValidation, deleteParticipant);
+router.delete(
+    '/:conversationId/participants/:participantId',
+    deleteParticipantValidation,
+    deleteParticipant,
+);
 
 export default router;

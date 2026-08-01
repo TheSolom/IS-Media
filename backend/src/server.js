@@ -1,8 +1,8 @@
 import { createServer } from 'node:http';
 import { Server } from 'socket.io';
 
-import app from "./app.js";
-import SocketManager from "./socket.js";
+import app from './app.js';
+import SocketManager from './socket.js';
 
 const server = createServer(app);
 

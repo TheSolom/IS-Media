@@ -8,9 +8,7 @@ export const isUserFolloweeValidation = [
 ];
 
 export const getUserFollowersValidation = [
-    query('userId', 'No valid user id is provided')
-        .if(query('userId').exists())
-        .isInt({ min: 1 }),
+    query('userId', 'No valid user id is provided').if(query('userId').exists()).isInt({ min: 1 }),
 ];
 
 export const isUserFollowerValidation = [
@@ -21,9 +19,7 @@ export const isUserFollowerValidation = [
 ];
 
 export const getUserFollowingsValidation = [
-    query('userId', 'No valid user id is provided')
-        .if(query('userId').exists())
-        .isInt({ min: 1 }),
+    query('userId', 'No valid user id is provided').if(query('userId').exists()).isInt({ min: 1 }),
 ];
 
 export const postUserFollowValidation = [
@@ -31,7 +27,6 @@ export const postUserFollowValidation = [
         .isInt({ min: 1 })
         .custom(async (value, { req }) => value === req.userId)
         .withMessage('You can not follow yourself'),
-
 ];
 
 export const deleteUserFollowValidation = [

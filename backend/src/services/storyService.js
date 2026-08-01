@@ -14,7 +14,7 @@ export const getUserStories = async (userId, activeOnly, lastId, limit) => {
         return {
             success: true,
             lastId: id,
-            stories
+            stories,
         };
     } catch (error) {
         console.error(error);
@@ -39,7 +39,7 @@ export const getActiveUserStories = async (userId, activeOnly, lastId, limit) =>
         return {
             success: true,
             lastId: id,
-            stories
+            stories,
         };
     } catch (error) {
         console.error(error);
@@ -64,7 +64,7 @@ export const getPastUserStories = async (userId, activeOnly, lastId, limit) => {
         return {
             success: true,
             lastId: id,
-            stories
+            stories,
         };
     } catch (error) {
         console.error(error);
@@ -89,7 +89,7 @@ export const getFeedStories = async (userId, lastId, limit) => {
         return {
             success: true,
             lastId: id,
-            stories
+            stories,
         };
     } catch (error) {
         console.error(error);
@@ -116,7 +116,7 @@ export const getStory = async (storyId) => {
 
         return {
             success: true,
-            story: storyRow[0]
+            story: storyRow[0],
         };
     } catch (error) {
         return {
@@ -142,7 +142,7 @@ export const postStory = async (content, authorId) => {
 
         return {
             success: true,
-            createResult
+            createResult,
         };
     } catch (error) {
         return {
@@ -157,7 +157,10 @@ export const deleteStory = async (storyId, authorId) => {
     const storyModel = new StoryModel();
 
     try {
-        const deleteResult = await storyModel.update({ deleted_at: new Date() }, { id: storyId, author_id: authorId });
+        const deleteResult = await storyModel.update(
+            { deleted_at: new Date() },
+            { id: storyId, author_id: authorId },
+        );
 
         if (!deleteResult.affectedRows)
             return {

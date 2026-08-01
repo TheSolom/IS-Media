@@ -3,8 +3,9 @@ import validator from 'validator';
 import TagsModel from '../models/tagsModel.js';
 
 export const exportTags = async (title, content) => {
-    const tags = validator.isURL(content) ?
-        title.match(/#([^#\s]+)/g) : content.match(/#([^#\s]+)/g);
+    const tags = validator.isURL(content)
+        ? title.match(/#([^#\s]+)/g)
+        : content.match(/#([^#\s]+)/g);
 
     const uniqueTags = [...new Set(tags)];
 
@@ -27,8 +28,7 @@ export const postTags = async (tags) => {
         const createTagsPromises = tags.map(async (tag) => {
             const tagNormalized = tag.substring(1).toLowerCase();
 
-            if (!validator.isAlphanumeric(tagNormalized))
-                return Promise.resolve();
+            if (!validator.isAlphanumeric(tagNormalized)) return Promise.resolve();
 
             const [tagRow] = await tagsModel.find({ tag: tagNormalized });
 
@@ -37,13 +37,10 @@ export const postTags = async (tags) => {
             if (!tagRow.length) {
                 const createTagResult = await tagsModel.create({ tag: tagNormalized });
 
-                if (!createTagResult.affectedRows)
-                    return Promise.reject();
+                if (!createTagResult.affectedRows) return Promise.reject();
 
                 tagId = createTagResult.insertId;
-
-            } else
-                tagId = tagRow[0].id;
+            } else tagId = tagRow[0].id;
 
             tagsIds.push(tagId);
 
@@ -52,7 +49,9 @@ export const postTags = async (tags) => {
 
         const createPostTagsResults = await Promise.allSettled(createTagsPromises);
 
-        const rejectedPromises = createPostTagsResults.filter(result => result.status === 'rejected');
+        const rejectedPromises = createPostTagsResults.filter(
+            (result) => result.status === 'rejected',
+        );
 
         if (rejectedPromises.length) {
             console.error('Some tags failed to be added:', rejectedPromises);
@@ -66,7 +65,7 @@ export const postTags = async (tags) => {
         return {
             success: true,
             message: 'Successfully added tags to the post',
-            tagsIds
+            tagsIds,
         };
     } catch (error) {
         console.error(error);

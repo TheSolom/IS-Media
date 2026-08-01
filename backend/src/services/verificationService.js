@@ -1,7 +1,7 @@
 import { randomInt } from 'node:crypto';
 
 import transporter from '../configs/transporter.js';
-import resetPasswordTemplate from "../Templates/Mail/resetPassword.js";
+import resetPasswordTemplate from '../Templates/Mail/resetPassword.js';
 import accountVerificationTemplate from '../Templates/Mail/accountVerification.js';
 import TokenModel from '../models/tokenModel.js';
 import OTPModel from '../models/otpModel.js';
@@ -9,17 +9,19 @@ import OTPModel from '../models/otpModel.js';
 export const isDisposableEmail = async (email) => {
     try {
         const myHeaders = new Headers();
-        myHeaders.append("apikey", process.env.DISPOSABLE_EMAIL_CHECKER_API_KEY);
+        myHeaders.append('apikey', process.env.DISPOSABLE_EMAIL_CHECKER_API_KEY);
 
         const requestOptions = {
             method: 'GET',
             redirect: 'follow',
-            headers: myHeaders
+            headers: myHeaders,
         };
 
-        const response = await fetch(`https://api.apilayer.com/disposable_email/${email}`, requestOptions);
-        if (!response.ok)
-            throw new Error('API request failed');
+        const response = await fetch(
+            `https://api.apilayer.com/disposable_email/${email}`,
+            requestOptions,
+        );
+        if (!response.ok) throw new Error('API request failed');
 
         const result = await response.json();
         return result.is_disposable;
@@ -55,13 +57,18 @@ export const sendResetPasswordMail = async (userId, email, username) => {
     const token = crypto.randomBytes(32).toString('hex');
 
     const currentTimestampSeconds = Math.floor(Date.now() / 1000);
-    const expiryTimestampSeconds = currentTimestampSeconds + parseInt(process.env.RESET_PASSWORD_EXPIRES_IN, 10);
+    const expiryTimestampSeconds =
+        currentTimestampSeconds + parseInt(process.env.RESET_PASSWORD_EXPIRES_IN, 10);
     const expirationDate = new Date(expiryTimestampSeconds * 1000);
 
     const tokenModel = new TokenModel();
 
     try {
-        const createResult = await tokenModel.create({ user_id: userId, token, expiration_date: expirationDate });
+        const createResult = await tokenModel.create({
+            user_id: userId,
+            token,
+            expiration_date: expirationDate,
+        });
 
         if (!createResult.success)
             throw new Error('An error occurred while storing the password reset token');
@@ -74,8 +81,8 @@ export const sendResetPasswordMail = async (userId, email, username) => {
             html: resetPasswordTemplate(username, resetUrl),
             tags: [
                 {
-                    name: "category",
-                    value: "reset_password",
+                    name: 'category',
+                    value: 'reset_password',
                 },
             ],
         };
@@ -87,7 +94,7 @@ export const sendResetPasswordMail = async (userId, email, username) => {
 
         return {
             success: true,
-            info: sendEmailResult.info
+            info: sendEmailResult.info,
         };
     } catch (error) {
         console.error(error);
@@ -96,7 +103,7 @@ export const sendResetPasswordMail = async (userId, email, username) => {
             message: 'An error occurred while sending the password reset email',
             status: 500,
         };
-    };
+    }
 };
 
 export const sendVerificationEmail = async (email, username, otp) => {
@@ -106,8 +113,8 @@ export const sendVerificationEmail = async (email, username, otp) => {
         html: accountVerificationTemplate(username, otp),
         tags: [
             {
-                name: "category",
-                value: "account_verification",
+                name: 'category',
+                value: 'account_verification',
             },
         ],
     };
@@ -120,7 +127,7 @@ export const sendVerificationEmail = async (email, username, otp) => {
 
         return {
             success: true,
-            info: sendEmailResult.info
+            info: sendEmailResult.info,
         };
     } catch (error) {
         console.error(error);
@@ -129,7 +136,7 @@ export const sendVerificationEmail = async (email, username, otp) => {
             message: error.message,
             status: 500,
         };
-    };
+    }
 };
 
 export const checkOTPCoolDown = async (userId, purpose) => {
@@ -138,13 +145,15 @@ export const checkOTPCoolDown = async (userId, purpose) => {
     const otpModel = new OTPModel();
 
     try {
-        const [otpRow] = await otpModel.find({ user_id: userId, purpose }, { orderBy: 'created_at DESC', limit: 1 });
+        const [otpRow] = await otpModel.find(
+            { user_id: userId, purpose },
+            { orderBy: 'created_at DESC', limit: 1 },
+        );
 
-        if (
-            otpRow.length &&
-            Date.now() - otpRow[0].created_at < COOL_DOWN_PERIOD
-        ) {
-            const timeRemaining = Math.ceil((COOL_DOWN_PERIOD - (Date.now() - otpRow[0].created_at)) / 1000);
+        if (otpRow.length && Date.now() - otpRow[0].created_at < COOL_DOWN_PERIOD) {
+            const timeRemaining = Math.ceil(
+                (COOL_DOWN_PERIOD - (Date.now() - otpRow[0].created_at)) / 1000,
+            );
             const minutes = Math.floor(timeRemaining / 60);
             const seconds = timeRemaining % 60;
             const remainingTimeString = minutes > 0 ? `${minutes}min ${seconds}s` : `${seconds}s`;
@@ -172,7 +181,7 @@ export const checkOTPCoolDown = async (userId, purpose) => {
 
 function generateOTP(length = 6) {
     const min = 10 ** (length - 1);
-    const max = (10 ** length) - 1;
+    const max = 10 ** length - 1;
 
     return randomInt(min, max);
 }
@@ -184,12 +193,11 @@ export const createOTP = async (userId, purpose) => {
     try {
         const createResult = await otpModel.create({ user_id: userId, otp, purpose });
 
-        if (!createResult.affectedRows)
-            throw Error('An error occurred while creating the otp');
+        if (!createResult.affectedRows) throw Error('An error occurred while creating the otp');
 
         return {
             success: true,
-            otp
+            otp,
         };
     } catch (error) {
         console.error(error);
@@ -214,16 +222,17 @@ export const verifyOTP = async (userId, otp, purpose) => {
     const otpModel = new OTPModel();
 
     try {
-        const [otpRow] = await otpModel.find({ user_id: userId, otp, purpose }, { orderBy: 'created_at DESC', limit: 1 });
+        const [otpRow] = await otpModel.find(
+            { user_id: userId, otp, purpose },
+            { orderBy: 'created_at DESC', limit: 1 },
+        );
 
-        if (!otpRow.length)
-            throw Error('Invalid OTP');
+        if (!otpRow.length) throw Error('Invalid OTP');
 
         const otpExp = new Date(otpRow[0].expiration_date);
         otpExp.setMinutes(otpExp.getMinutes() - otpExp.getTimezoneOffset());
 
-        if (otpExp < Date.now())
-            throw Error('OTP expired');
+        if (otpExp < Date.now()) throw Error('OTP expired');
 
         return { success: true };
     } catch (error) {

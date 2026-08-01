@@ -64,8 +64,7 @@ export default class UserFollowersModel extends BaseModel {
     }
 
     async findValidFollowSuggestions(suggestionsIds, userId, limit) {
-        if (!suggestionsIds.length)
-            return [[]];
+        if (!suggestionsIds.length) return [[]];
 
         const query = `SELECT
                             users.id,
@@ -84,7 +83,13 @@ export default class UserFollowersModel extends BaseModel {
                             AND blocker.id IS NULL
                         LIMIT ?`;
 
-        const result = await connection.execute(query, [userId, userId, userId, ...suggestionsIds, limit.toString()]);
+        const result = await connection.execute(query, [
+            userId,
+            userId,
+            userId,
+            ...suggestionsIds,
+            limit.toString(),
+        ]);
         return result;
     }
 }

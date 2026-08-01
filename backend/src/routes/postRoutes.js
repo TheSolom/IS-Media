@@ -12,7 +12,7 @@ import {
 import {
     getUserPostsValidation,
     createPostValidation,
-    updatePostValidation
+    updatePostValidation,
 } from '../validations/postValidation.js';
 import cursorPaginationValidation from '../validations/cursorPaginationValidation.js';
 import authMiddleware from '../middlewares/authMiddleware.js';

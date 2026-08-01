@@ -18,7 +18,7 @@ export const getMessage = async (conversationId, messageId) => {
 
         return {
             success: true,
-            message
+            message,
         };
     } catch (error) {
         console.error(error);
@@ -38,7 +38,7 @@ export const searchMessage = async (conversationId, content, limit) => {
 
         return {
             success: true,
-            messages: messagesRows
+            messages: messagesRows,
         };
     } catch (error) {
         console.error(error);
@@ -54,7 +54,12 @@ export const getMessages = async (conversationId, lastId, lastDate, limit) => {
     const messageModel = new MessageModel();
 
     try {
-        const [messagesRows] = await messageModel.findMessages(conversationId, lastId, lastDate, limit);
+        const [messagesRows] = await messageModel.findMessages(
+            conversationId,
+            lastId,
+            lastDate,
+            limit,
+        );
 
         const id = messagesRows.length ? messagesRows.at(-1).id : null;
         const date = messagesRows.length ? messagesRows.at(-1).created_at : null;
@@ -65,7 +70,7 @@ export const getMessages = async (conversationId, lastId, lastDate, limit) => {
             success: true,
             lastId: id,
             lastDate: date,
-            messages
+            messages,
         };
     } catch (error) {
         console.error(error);
@@ -81,7 +86,13 @@ export const postMessage = async (content, image, userId, conversationId, parent
     const messageModel = new MessageModel();
 
     try {
-        const createResult = await messageModel.create({ content, image, sender_id: userId, conversation_id: conversationId, parent_id: parentId });
+        const createResult = await messageModel.create({
+            content,
+            image,
+            sender_id: userId,
+            conversation_id: conversationId,
+            parent_id: parentId,
+        });
 
         if (!createResult.affectedRows)
             return {
@@ -92,7 +103,7 @@ export const postMessage = async (content, image, userId, conversationId, parent
 
         return {
             success: true,
-            createResult
+            createResult,
         };
     } catch (error) {
         console.error(error);
@@ -123,7 +134,10 @@ export const updateMessage = async (messageId, content, userId, conversationId) 
     const messageModel = new MessageModel();
 
     try {
-        const updateResult = await messageModel.update({ content }, { id: messageId, sender_id: userId, conversation_id: conversationId });
+        const updateResult = await messageModel.update(
+            { content },
+            { id: messageId, sender_id: userId, conversation_id: conversationId },
+        );
 
         if (!updateResult.affectedRows)
             return {
@@ -147,7 +161,10 @@ export const deleteMessage = async (messageId, userId, conversationId) => {
     const messageModel = new MessageModel();
 
     try {
-        const deleteResult = await messageModel.update({ deleted_at: new Date() }, { id: messageId, sender_id: userId, conversation_id: conversationId });
+        const deleteResult = await messageModel.update(
+            { deleted_at: new Date() },
+            { id: messageId, sender_id: userId, conversation_id: conversationId },
+        );
 
         if (!deleteResult.affectedRows)
             return {

@@ -15,7 +15,7 @@ export const getUserPosts = async (userId, lastId, limit) => {
         return {
             success: true,
             lastId: id,
-            posts
+            posts,
         };
     } catch (error) {
         console.error(error);
@@ -40,7 +40,7 @@ export const getFeedPosts = async (userId, lastId, limit) => {
         return {
             success: true,
             lastId: id,
-            posts
+            posts,
         };
     } catch (error) {
         console.error(error);
@@ -53,8 +53,7 @@ export const getFeedPosts = async (userId, lastId, limit) => {
 };
 
 const getTagsProbability = (tagsRows, limit) => {
-    if (!tagsRows || !tagsRows.length)
-        return {};
+    if (!tagsRows || !tagsRows.length) return {};
 
     const tagsUsageProbability = {};
 
@@ -66,8 +65,7 @@ const getTagsProbability = (tagsRows, limit) => {
 };
 
 const getSelectedTags = (tagsUsageProbability, limit) => {
-    if (!tagsUsageProbability)
-        return [];
+    if (!tagsUsageProbability) return [];
 
     const selectedTags = [];
 
@@ -119,7 +117,7 @@ export const getSuggestedPosts = async (tagsRows, userId, limit) => {
 
         return {
             success: true,
-            posts
+            posts,
         };
     } catch (error) {
         console.error(error);
@@ -148,7 +146,7 @@ export const getPost = async (postId) => {
 
         return {
             success: true,
-            post
+            post,
         };
     } catch (error) {
         console.error(error);
@@ -164,7 +162,12 @@ export const postPost = async (title, content, authorId, parentId) => {
     const postModel = new PostModel();
 
     try {
-        const createResult = await postModel.create({ title, content, author_id: authorId, parent_id: parentId });
+        const createResult = await postModel.create({
+            title,
+            content,
+            author_id: authorId,
+            parent_id: parentId,
+        });
 
         if (!createResult.affectedRows)
             return {
@@ -175,7 +178,7 @@ export const postPost = async (title, content, authorId, parentId) => {
 
         return {
             success: true,
-            createResult
+            createResult,
         };
     } catch (error) {
         console.error(error);
@@ -211,7 +214,7 @@ export const updatePost = async (title, content, postId) => {
 
         return {
             success: true,
-            updateResult
+            updateResult,
         };
     } catch (error) {
         console.error(error);

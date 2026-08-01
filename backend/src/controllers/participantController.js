@@ -13,7 +13,7 @@ export async function searchParticipant(req, res, next) {
         const searchParticipantResult = await participantService.searchParticipant(
             conversationId,
             username,
-            limit ?? 10
+            limit ?? 10,
         );
 
         if (!searchParticipantResult.success)
@@ -42,7 +42,7 @@ export async function getParticipant(req, res, next) {
 
         res.status(200).json({
             success: true,
-            participant: getParticipantResult.participant
+            participant: getParticipantResult.participant,
         });
     } catch (error) {
         next(error);
@@ -59,18 +59,11 @@ export async function getParticipants(req, res, next) {
         let getParticipantsResult = null;
 
         if (adminsOnly === 'true') {
-            getParticipantsResult = await participantService.getAdminParticipants(
-                conversationId
-            );
-        }
-        else if (pastOnly === 'true') {
-            getParticipantsResult = await participantService.getPastParticipants(
-                conversationId
-            );
+            getParticipantsResult = await participantService.getAdminParticipants(conversationId);
+        } else if (pastOnly === 'true') {
+            getParticipantsResult = await participantService.getPastParticipants(conversationId);
         } else {
-            getParticipantsResult = await participantService.getParticipants(
-                conversationId
-            );
+            getParticipantsResult = await participantService.getParticipants(conversationId);
         }
 
         if (!getParticipantsResult.success)
@@ -93,21 +86,25 @@ export async function postParticipant(req, res, next) {
         requestValidation(req);
 
         if (userId !== req.userId) {
-            const isAdmin = await participantService.validateAdminPrivileges(req.userId, conversationId);
+            const isAdmin = await participantService.validateAdminPrivileges(
+                req.userId,
+                conversationId,
+            );
 
-            if (!isAdmin)
-                throw new CustomError('Only admins can add other participants', 403);
+            if (!isAdmin) throw new CustomError('Only admins can add other participants', 403);
         }
 
-        const getRestrictedPermissionsResult = await conversationPermissionsService.getRestrictedPermissions(
-            conversationId,
-        );
+        const getRestrictedPermissionsResult =
+            await conversationPermissionsService.getRestrictedPermissions(conversationId);
 
         if (!getRestrictedPermissionsResult.success)
             throw new CustomError('An error occurred while adding the participant', 500);
 
-        const restrictedPermission = getRestrictedPermissionsResult.restrictedPermissions
-            .find(permission => permission.conversation_id === conversationId && permission.permission === 'add_members');
+        const restrictedPermission = getRestrictedPermissionsResult.restrictedPermissions.find(
+            (permission) =>
+                permission.conversation_id === conversationId &&
+                permission.permission === 'add_members',
+        );
 
         if (restrictedPermission)
             throw new CustomError('You are not allowed to add members to this conversation', 401);
@@ -136,10 +133,12 @@ export async function deleteParticipant(req, res, next) {
         requestValidation(req);
 
         if (participantId !== req.userId) {
-            const isAdmin = await participantService.validateAdminPrivileges(req.userId, conversationId);
+            const isAdmin = await participantService.validateAdminPrivileges(
+                req.userId,
+                conversationId,
+            );
 
-            if (!isAdmin)
-                throw new CustomError('Only admins can delete other participants', 403);
+            if (!isAdmin) throw new CustomError('Only admins can delete other participants', 403);
         }
 
         const deleteParticipantResult = await participantService.deleteParticipant(

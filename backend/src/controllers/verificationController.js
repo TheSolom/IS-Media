@@ -8,7 +8,10 @@ export async function sendVerificationOTP(req, res, next) {
     try {
         requestValidation(req);
 
-        const checkOTPCoolDown = await verificationService.checkOTPCoolDown(userId, 'email_verification');
+        const checkOTPCoolDown = await verificationService.checkOTPCoolDown(
+            userId,
+            'email_verification',
+        );
 
         if (!checkOTPCoolDown.success)
             throw new CustomError(checkOTPCoolDown.message, checkOTPCoolDown.status);
@@ -24,7 +27,11 @@ export async function sendVerificationOTP(req, res, next) {
         if (!createOTPResult.success)
             throw new CustomError(createOTPResult.message, createOTPResult.status);
 
-        const sendMailResult = await verificationService.sendVerificationEmail(email, username, createOTPResult.otp);
+        const sendMailResult = await verificationService.sendVerificationEmail(
+            email,
+            username,
+            createOTPResult.otp,
+        );
 
         if (!sendMailResult.success)
             throw new CustomError(sendMailResult.message, sendMailResult.status);
@@ -36,9 +43,9 @@ export async function sendVerificationOTP(req, res, next) {
     } catch (error) {
         next(error);
     }
-};
+}
 
-export function send2FA(req, res, next) { }
+export function send2FA(req, res, next) {}
 
 export async function verifyOTP(req, res, next) {
     const { userId, otp, purpose } = req.body;
@@ -52,10 +59,10 @@ export async function verifyOTP(req, res, next) {
             throw new CustomError(verifyOTPResult.message, verifyOTPResult.status);
 
         res.status(200).json({
-            status: "success",
-            message: "OTP verified successfully",
+            status: 'success',
+            message: 'OTP verified successfully',
         });
     } catch (error) {
         next(error);
     }
-};
+}

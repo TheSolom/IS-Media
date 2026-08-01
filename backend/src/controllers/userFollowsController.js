@@ -8,10 +8,7 @@ export async function isUserFollowee(req, res, next) {
     try {
         requestValidation(req);
 
-        const isUserFolloweeResult = await userFollowsService.isUserFollowee(
-            userId,
-            req.userId,
-        );
+        const isUserFolloweeResult = await userFollowsService.isUserFollowee(userId, req.userId);
 
         if (!isUserFolloweeResult.success)
             throw new CustomError(isUserFolloweeResult.message, isUserFolloweeResult.status);
@@ -19,7 +16,9 @@ export async function isUserFollowee(req, res, next) {
         res.status(200).json({
             success: true,
             isFollowing: !!isUserFolloweeResult.followStatus.length,
-            since: isUserFolloweeResult.followStatus.length ? isUserFolloweeResult.followStatus[0].created_at : null
+            since: isUserFolloweeResult.followStatus.length
+                ? isUserFolloweeResult.followStatus[0].created_at
+                : null,
         });
     } catch (error) {
         next(error);
@@ -35,7 +34,7 @@ export async function getUserFollowers(req, res, next) {
         const getUserFollowersResult = await userFollowsService.getUserFollowers(
             userId ?? req.userId,
             lastId ?? 0,
-            limit ?? 10
+            limit ?? 10,
         );
 
         if (!getUserFollowersResult.success)
@@ -57,10 +56,7 @@ export async function isUserFollower(req, res, next) {
     try {
         requestValidation(req);
 
-        const isUserFollowerResult = await userFollowsService.isUserFollower(
-            userId,
-            req.userId,
-        );
+        const isUserFollowerResult = await userFollowsService.isUserFollower(userId, req.userId);
 
         if (!isUserFollowerResult.success)
             throw new CustomError(isUserFollowerResult.message, isUserFollowerResult.status);
@@ -68,7 +64,9 @@ export async function isUserFollower(req, res, next) {
         res.status(200).json({
             success: true,
             isFollowing: !!isUserFollowerResult.followStatus.length,
-            since: isUserFollowerResult.followStatus.length ? isUserFollowerResult.followStatus[0].created_at : null
+            since: isUserFollowerResult.followStatus.length
+                ? isUserFollowerResult.followStatus[0].created_at
+                : null,
         });
     } catch (error) {
         next(error);
@@ -84,7 +82,7 @@ export async function getUserFollowings(req, res, next) {
         const getUserFollowingsResult = await userFollowsService.getUserFollowings(
             userId ?? req.userId,
             lastId ?? 0,
-            limit ?? 10
+            limit ?? 10,
         );
 
         if (!getUserFollowingsResult.success)
@@ -108,7 +106,7 @@ export async function getUserFollowSuggestions(req, res, next) {
 
         const getSuggestionsResult = await userFollowsService.getUserFollowSuggestions(
             req.userId,
-            limit ?? 10
+            limit ?? 10,
         );
 
         if (!getSuggestionsResult.success)
@@ -131,7 +129,7 @@ export async function postUserFollow(req, res, next) {
 
         const postUserFollowResult = await userFollowsService.postUserFollow(
             followeeId,
-            req.userId
+            req.userId,
         );
 
         if (!postUserFollowResult.success)
@@ -154,7 +152,7 @@ export async function deleteUserFollow(req, res, next) {
 
         const deleteUserFollowResult = await userFollowsService.deleteUserFollow(
             followeeId,
-            req.userId
+            req.userId,
         );
 
         if (!deleteUserFollowResult.success)

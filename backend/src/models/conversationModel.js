@@ -39,7 +39,13 @@ export default class ConversationModel extends BaseModel {
                             ${this.getTableName()}.id DESC
                         limit ?`;
 
-        const result = await connection.execute(query, [userId, `%${title}%`, `%${title}%`, userId, limit.toString()]);
+        const result = await connection.execute(query, [
+            userId,
+            `%${title}%`,
+            `%${title}%`,
+            userId,
+            limit.toString(),
+        ]);
         return result;
     }
 
@@ -70,20 +76,26 @@ export default class ConversationModel extends BaseModel {
                             ON u2.id = p2.user_id
                         WHERE
                             p1.user_id = ?
-                            ${lastId && lastDate ? `
+                            ${
+                                lastId && lastDate
+                                    ? `
                                 AND
                                 (
                                     (${this.getTableName()}.updated_at < ?)
                                     OR
                                     (${this.getTableName()}.updated_at = ? AND ${this.getTableName()}.id < ?)
-                                )` : ''}
+                                )`
+                                    : ''
+                            }
                         ORDER BY
                             ${this.getTableName()}.updated_at DESC,
                             ${this.getTableName()}.id DESC
                         limit ?`;
 
-        const params = lastId && lastDate ?
-            [userId, userId, new Date(lastDate), new Date(lastDate), lastId, limit.toString()] : [userId, userId, limit.toString()];
+        const params =
+            lastId && lastDate
+                ? [userId, userId, new Date(lastDate), new Date(lastDate), lastId, limit.toString()]
+                : [userId, userId, limit.toString()];
         const result = await connection.execute(query, params);
         return result;
     }

@@ -6,11 +6,14 @@ export const isUserFollowee = async (followerId, userId) => {
     const userFollowersModel = new UserFollowersModel();
 
     try {
-        const [followRow] = await userFollowersModel.find({ user_id: userId, follower_id: followerId });
+        const [followRow] = await userFollowersModel.find({
+            user_id: userId,
+            follower_id: followerId,
+        });
 
         return {
             success: true,
-            followStatus: followRow
+            followStatus: followRow,
         };
     } catch (error) {
         console.error(error);
@@ -49,11 +52,14 @@ export const isUserFollower = async (followeeId, userId) => {
     const userFollowersModel = new UserFollowersModel();
 
     try {
-        const [followRow] = await userFollowersModel.find({ user_id: followeeId, follower_id: userId });
+        const [followRow] = await userFollowersModel.find({
+            user_id: followeeId,
+            follower_id: userId,
+        });
 
         return {
             success: true,
-            followStatus: followRow
+            followStatus: followRow,
         };
     } catch (error) {
         console.error(error);
@@ -127,7 +133,11 @@ export const getUserFollowSuggestions = async (currentUserId, limit) => {
             }
         }
 
-        const [usersRows] = await userFollowersModel.findValidFollowSuggestions(suggestedUsers, currentUserId, limit);
+        const [usersRows] = await userFollowersModel.findValidFollowSuggestions(
+            suggestedUsers,
+            currentUserId,
+            limit,
+        );
 
         return {
             success: true,
@@ -147,7 +157,10 @@ export const postUserFollow = async (followeeId, followerId) => {
     const userFollowersModel = new UserFollowersModel();
 
     try {
-        const createResult = await userFollowersModel.create({ user_id: followeeId, follower_id: followerId });
+        const createResult = await userFollowersModel.create({
+            user_id: followeeId,
+            follower_id: followerId,
+        });
 
         if (!createResult.affectedRows)
             return {
@@ -186,7 +199,10 @@ export const deleteUserFollow = async (followeeId, followerId) => {
     const userFollowersModel = new UserFollowersModel();
 
     try {
-        const deleteResult = await userFollowersModel.delete({ user_id: followeeId, follower_id: followerId });
+        const deleteResult = await userFollowersModel.delete({
+            user_id: followeeId,
+            follower_id: followerId,
+        });
 
         if (!deleteResult.affectedRows)
             return {

@@ -1,14 +1,7 @@
 import { Router } from 'express';
 
-import {
-    searchUser,
-    getUser,
-    updateUser,
-} from '../controllers/userController.js';
-import {
-    searchUserValidation,
-    updateUserValidation,
-} from '../validations/userValidation.js';
+import { searchUser, getUser, updateUser } from '../controllers/userController.js';
+import { searchUserValidation, updateUserValidation } from '../validations/userValidation.js';
 import cursorPaginationValidation from '../validations/cursorPaginationValidation.js';
 import authMiddleware from '../middlewares/authMiddleware.js';
 

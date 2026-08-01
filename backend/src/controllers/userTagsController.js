@@ -8,10 +8,7 @@ export default async function getMostUsedTags(req, res, next) {
     try {
         requestValidation(req);
 
-        const getMostUsedTagsResult = await userTagsService.getMostUsedTags(
-            req.userId,
-            limit ?? 5
-        );
+        const getMostUsedTagsResult = await userTagsService.getMostUsedTags(req.userId, limit ?? 5);
 
         if (!getMostUsedTagsResult.success)
             throw new CustomError(getMostUsedTagsResult.message, getMostUsedTagsResult.status);

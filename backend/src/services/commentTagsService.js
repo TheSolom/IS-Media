@@ -11,7 +11,7 @@ export const getCommentTags = async (commentId) => {
 
         return {
             success: true,
-            tags: tagsRows
+            tags: tagsRows,
         };
     } catch (error) {
         console.error(error);
@@ -34,7 +34,7 @@ export const getTagComments = async (tag, lastId, limit) => {
         return {
             success: true,
             lastId: id,
-            comments: commentsRows
+            comments: commentsRows,
         };
     } catch (error) {
         console.error(error);
@@ -63,8 +63,7 @@ export const postCommentTags = async (tags, commentId) => {
         const createTagsPromises = tags.map(async (tag) => {
             const tagNormalized = tag.substring(1).toLowerCase();
 
-            if (!validator.isAlphanumeric(tagNormalized))
-                return Promise.resolve();
+            if (!validator.isAlphanumeric(tagNormalized)) return Promise.resolve();
 
             const [tagRow] = await tagsModel.find({ tag: tagNormalized });
 
@@ -78,12 +77,17 @@ export const postCommentTags = async (tags, commentId) => {
 
             tagsIds.push(createTagResult.insertId);
 
-            return commentTagsModel.create({ tag_id: createTagResult.insertId, comment_id: commentId });
+            return commentTagsModel.create({
+                tag_id: createTagResult.insertId,
+                comment_id: commentId,
+            });
         });
 
         const createCommentTagsResults = await Promise.allSettled(createTagsPromises);
 
-        const rejectedPromises = createCommentTagsResults.filter(result => result.status === 'rejected');
+        const rejectedPromises = createCommentTagsResults.filter(
+            (result) => result.status === 'rejected',
+        );
 
         if (rejectedPromises.length) {
             console.error('Some tags failed to be added:', rejectedPromises);
@@ -97,7 +101,7 @@ export const postCommentTags = async (tags, commentId) => {
         return {
             success: true,
             message: 'Successfully added tags to the comment',
-            tagsIds
+            tagsIds,
         };
     } catch (error) {
         console.error(error);
@@ -115,13 +119,13 @@ export const deleteCommentTags = async (commentId, tagsIds) => {
     try {
         if (tagsIds) {
             const deleteTagsPromises = tagsIds.map(async (tagId) =>
-                commentTagsModel.delete({ comment_id: commentId, tag_id: tagId })
+                commentTagsModel.delete({ comment_id: commentId, tag_id: tagId }),
             );
 
             const deleteTagsResults = await Promise.allSettled(deleteTagsPromises);
 
             const rejectedPromises = deleteTagsResults.filter(
-                (promise) => promise.status === 'rejected'
+                (promise) => promise.status === 'rejected',
             );
 
             if (rejectedPromises.length) {
@@ -132,8 +136,7 @@ export const deleteCommentTags = async (commentId, tagsIds) => {
                     status: 500,
                 };
             }
-        }
-        else {
+        } else {
             const deleteResult = commentTagsModel.delete({ comment_id: commentId });
 
             if (!deleteResult.affectedRows)

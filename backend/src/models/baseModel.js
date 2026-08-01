@@ -12,20 +12,11 @@ export default class BaseModel {
     }
 
     async find(conditions, options = {}) {
-        const {
-            select = '*',
-            join = '',
-            orderBy,
-            limit,
-            offset,
-            groupBy,
-            having
-        } = options;
+        const { select = '*', join = '', orderBy, limit, offset, groupBy, having } = options;
 
         const conditionKeys = Object.keys(conditions);
 
-        if (conditionKeys.length === 0)
-            throw new Error('Empty conditions object');
+        if (conditionKeys.length === 0) throw new Error('Empty conditions object');
 
         let query = `SELECT ${select} FROM ${this.getTableName()} `;
 
@@ -57,8 +48,7 @@ export default class BaseModel {
     async create(data, options = { returning: false }) {
         const keys = Object.keys(data);
 
-        if (keys.length === 0)
-            throw new Error('Empty data object');
+        if (keys.length === 0) throw new Error('Empty data object');
 
         const query = `INSERT INTO ${this.getTableName()} (${keys.join(', ')}) VALUES (:${keys.join(', :')})`;
 
@@ -67,14 +57,13 @@ export default class BaseModel {
         if (options.returning && result[0].affectedRows) {
             const returnedResult = await this.find({ id: result[0].insertId });
 
-            if (returnedResult.length === 0)
-                throw new Error('Failed to find newly created record');
+            if (returnedResult.length === 0) throw new Error('Failed to find newly created record');
 
             return {
                 ...result[0],
-                data: returnedResult[0][0]
+                data: returnedResult[0][0],
             };
-        };
+        }
 
         return result[0];
     }
@@ -82,11 +71,12 @@ export default class BaseModel {
     async update(data, conditions) {
         const conditionKeys = Object.keys(conditions);
 
-        if (conditionKeys.length === 0)
-            throw new Error('Empty conditions object');
+        if (conditionKeys.length === 0) throw new Error('Empty conditions object');
 
-        const setClause = Object.keys(data).map((key) => `${key} = ?`).join(', ');
-        const whereClause = conditionKeys.map(key => `${key} = ?`).join(' AND ');
+        const setClause = Object.keys(data)
+            .map((key) => `${key} = ?`)
+            .join(', ');
+        const whereClause = conditionKeys.map((key) => `${key} = ?`).join(' AND ');
 
         const values = [...Object.values(data), ...Object.values(conditions)];
 
@@ -99,11 +89,10 @@ export default class BaseModel {
     async delete(conditions) {
         const conditionKeys = Object.keys(conditions);
 
-        if (conditionKeys.length === 0)
-            throw new Error('Empty conditions object');
+        if (conditionKeys.length === 0) throw new Error('Empty conditions object');
 
-        const whereClause = conditionKeys.map(key => `${key} = ?`).join(' AND ');
-        const values = conditionKeys.map(key => conditions[key]);
+        const whereClause = conditionKeys.map((key) => `${key} = ?`).join(' AND ');
+        const values = conditionKeys.map((key) => conditions[key]);
 
         const query = `DELETE FROM ${this.getTableName()} WHERE ${whereClause}`;
 

@@ -23,7 +23,7 @@ export async function getPostComment(req, res, next) {
 
         res.status(200).json({
             success: true,
-            comment: getPostCommentResult.comment
+            comment: getPostCommentResult.comment,
         });
     } catch (error) {
         next(error);
@@ -49,7 +49,7 @@ export async function getPostComments(req, res, next) {
         res.status(getPostCommentsResult.comments.length ? 200 : 204).json({
             success: true,
             lastId: getPostCommentsResult.lastId,
-            comments: getPostCommentsResult.comments
+            comments: getPostCommentsResult.comments,
         });
     } catch (error) {
         next(error);
@@ -67,7 +67,7 @@ export async function postPostComment(req, res, next) {
             content,
             postId,
             req.userId,
-            parentId
+            parentId,
         );
 
         if (!postPostCommentResult.success)
@@ -119,8 +119,7 @@ export async function updatePostComment(req, res, next) {
         if (!getPostCommentResult.success) {
             if (getPostCommentResult.status === 404)
                 throw new CustomError(getPostCommentResult.message, getPostCommentResult.status);
-            else
-                throw new CustomError('An error occurred while updating the comment', 500);
+            else throw new CustomError('An error occurred while updating the comment', 500);
         }
 
         const { comment: currentComment } = getPostCommentResult;
@@ -142,9 +141,12 @@ export async function updatePostComment(req, res, next) {
         if (getCommentTagsResult.tags.length) {
             const { tags: tagsRows } = getCommentTagsResult;
 
-            const tagsIds = tagsRows.map(tagRow => tagRow.tag_id);
+            const tagsIds = tagsRows.map((tagRow) => tagRow.tag_id);
 
-            const deleteCommentTagsResult = await commentTagsService.deleteCommentTags(commentId, tagsIds);
+            const deleteCommentTagsResult = await commentTagsService.deleteCommentTags(
+                commentId,
+                tagsIds,
+            );
 
             if (!deleteCommentTagsResult.success)
                 throw new CustomError('An error occurred while updating the comment', 500);
@@ -159,7 +161,7 @@ export async function updatePostComment(req, res, next) {
             title,
             content,
             commentId,
-            req.userId
+            req.userId,
         );
 
         if (!updatePostCommentResult.success)
@@ -174,7 +176,11 @@ export async function updatePostComment(req, res, next) {
             const commentTagsResult = await commentTagsService.postCommentTags(newTags, commentId);
 
             if (!commentTagsResult.success) {
-                await postCommentsService.updatePostComment(currentComment.title, currentComment.content, commentId);
+                await postCommentsService.updatePostComment(
+                    currentComment.title,
+                    currentComment.content,
+                    commentId,
+                );
 
                 throw new CustomError('An error occurred while updating the comment', 500);
             }
@@ -187,7 +193,11 @@ export async function updatePostComment(req, res, next) {
                 if (!putUsedTagsResult.success) {
                     await commentTagsService.deleteCommentTags(commentId, newTagsIds);
 
-                    await postCommentsService.updatePost(currentComment.title, currentComment.content, commentId);
+                    await postCommentsService.updatePost(
+                        currentComment.title,
+                        currentComment.content,
+                        commentId,
+                    );
 
                     throw new CustomError('An error occurred while updating the comment', 500);
                 }
@@ -215,8 +225,7 @@ export async function deletePostComment(req, res, next) {
         if (!getPostCommentResult.success) {
             if (getPostCommentResult.status === 404)
                 throw new CustomError(getPostCommentResult.message, getPostCommentResult.status);
-            else
-                throw new CustomError('An error occurred while deleting the comment', 500);
+            else throw new CustomError('An error occurred while deleting the comment', 500);
         }
 
         const { comment: currentComment } = getPostCommentResult;
@@ -232,9 +241,12 @@ export async function deletePostComment(req, res, next) {
         if (getCommentTagsResult.tags.length) {
             const { tags: tagsRows } = getCommentTagsResult;
 
-            const tagsIds = tagsRows.map(tagRow => tagRow.tag_id);
+            const tagsIds = tagsRows.map((tagRow) => tagRow.tag_id);
 
-            const deletePostTagsResult = await commentTagsService.deleteCommentTags(commentId, tagsIds);
+            const deletePostTagsResult = await commentTagsService.deleteCommentTags(
+                commentId,
+                tagsIds,
+            );
 
             if (!deletePostTagsResult.success)
                 throw new CustomError('An error occurred while deleting the comment', 500);
@@ -243,11 +255,10 @@ export async function deletePostComment(req, res, next) {
 
             if (!deleteUserTagsResult.success)
                 throw new CustomError('An error occurred while deleting the comment', 500);
-
         }
         const deletePostCommentResult = await postCommentsService.deletePostComment(
             commentId,
-            req.userId
+            req.userId,
         );
 
         if (!deletePostCommentResult.success)

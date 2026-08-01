@@ -13,19 +13,16 @@ export const searchParticipantValidation = [
 ];
 
 export const getParticipantsValidation = [
-    param('conversationId', 'No valid conversation id is provided')
-        .custom(async (value) => {
-            if (!validator.isInt(value, { min: 1 }))
-                return false;
+    param('conversationId', 'No valid conversation id is provided').custom(async (value) => {
+        if (!validator.isInt(value, { min: 1 })) return false;
 
-            const conversationModel = new ConversationModel();
-            const [conversationRow] = await conversationModel.find({ id: value });
+        const conversationModel = new ConversationModel();
+        const [conversationRow] = await conversationModel.find({ id: value });
 
-            if (!conversationRow.length)
-                throw new Error('conversation is not found');
+        if (!conversationRow.length) throw new Error('conversation is not found');
 
-            return true;
-        }),
+        return true;
+    }),
     query('adminsOnly', 'adminsOnly must be a boolean value true/false')
         .if(query('adminsOnly').exists())
         .isBoolean()
@@ -37,33 +34,27 @@ export const getParticipantsValidation = [
 ];
 
 export const postParticipantsValidation = [
-    param('conversationId', 'No valid conversation id is provided')
-        .custom(async (value) => {
-            if (!validator.isInt(value, { min: 1 }))
-                return false;
+    param('conversationId', 'No valid conversation id is provided').custom(async (value) => {
+        if (!validator.isInt(value, { min: 1 })) return false;
 
-            const conversationModel = new ConversationModel();
-            const [conversationRow] = await conversationModel.find({ id: value });
+        const conversationModel = new ConversationModel();
+        const [conversationRow] = await conversationModel.find({ id: value });
 
-            if (!conversationRow.length)
-                throw new Error('conversation is not found');
+        if (!conversationRow.length) throw new Error('conversation is not found');
 
-            return true;
-        }),
+        return true;
+    }),
 ];
 
 export const deleteParticipantValidation = [
-    param('conversationId', 'No valid conversation id is provided')
-        .custom(async (value) => {
-            if (!validator.isInt(value, { min: 1 }))
-                return false;
+    param('conversationId', 'No valid conversation id is provided').custom(async (value) => {
+        if (!validator.isInt(value, { min: 1 })) return false;
 
-            const conversationModel = new ConversationModel();
-            const [conversationRow] = await conversationModel.find({ id: value });
+        const conversationModel = new ConversationModel();
+        const [conversationRow] = await conversationModel.find({ id: value });
 
-            if (!conversationRow.length)
-                throw new Error('conversation is not found');
+        if (!conversationRow.length) throw new Error('conversation is not found');
 
-            return true;
-        }),
+        return true;
+    }),
 ];

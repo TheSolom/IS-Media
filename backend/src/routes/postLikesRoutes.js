@@ -1,10 +1,6 @@
 import { Router } from 'express';
 
-import {
-    getPostLikes,
-    postPostLike,
-    deletePostLike,
-} from '../controllers/postLikesController.js';
+import { getPostLikes, postPostLike, deletePostLike } from '../controllers/postLikesController.js';
 import cursorPaginationValidation from '../validations/cursorPaginationValidation.js';
 import authMiddleware from '../middlewares/authMiddleware.js';
 

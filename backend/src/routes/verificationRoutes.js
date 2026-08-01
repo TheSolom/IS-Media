@@ -1,10 +1,6 @@
 import { Router } from 'express';
 
-import {
-    sendVerificationOTP,
-    send2FA,
-    verifyOTP
-} from '../controllers/verificationController.js';
+import { sendVerificationOTP, send2FA, verifyOTP } from '../controllers/verificationController.js';
 import {
     sendVerificationOTPValidation,
     send2FAValidation,

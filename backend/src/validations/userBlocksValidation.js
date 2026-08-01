@@ -7,7 +7,6 @@ export const getUserBlockStatusValidation = [
         .withMessage('You can not check yourself'),
 ];
 
-
 export const postUserBlockValidation = [
     body('blockedId', 'No valid blocked id is provided')
         .isInt({ min: 1 })

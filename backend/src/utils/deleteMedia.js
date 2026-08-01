@@ -1,16 +1,36 @@
 import deleteCloudinaryMedia from './cloudinary/cloudinaryDelete.js';
 
 const getResourceType = (format) => {
-    if (!format)
-        throw new Error('No valid format is provided');
+    if (!format) throw new Error('No valid format is provided');
 
     const imageFormats = [
-        "gif", "png", "jpg", "bmp", "ico", "pdf", "tiff", "eps", "jpc", "jp2",
-        "psd", "webp", "zip", "svg", "webm", "wdp", "hpx", "djvu", "ai",
-        "flif", "bpg", "miff", "tga", "heic"
+        'gif',
+        'png',
+        'jpg',
+        'bmp',
+        'ico',
+        'pdf',
+        'tiff',
+        'eps',
+        'jpc',
+        'jp2',
+        'psd',
+        'webp',
+        'zip',
+        'svg',
+        'webm',
+        'wdp',
+        'hpx',
+        'djvu',
+        'ai',
+        'flif',
+        'bpg',
+        'miff',
+        'tga',
+        'heic',
     ];
 
-    return imageFormats.includes(format) ? "image" : "video";
+    return imageFormats.includes(format) ? 'image' : 'video';
 };
 
 const deleteMedia = async (mediaUrl) => {
@@ -35,7 +55,7 @@ const deleteMedia = async (mediaUrl) => {
 
             return {
                 success: true,
-                message: deleteResult
+                message: deleteResult,
             };
         } catch (error) {
             console.error(error);

@@ -17,12 +17,10 @@ export const loginValidation = [
             .withMessage('Please enter an email or username')
             .isLength({ min: 5, max: 20 })
             .withMessage(
-                'Username must only contain letters and numbers between 5-20 characters long'
+                'Username must only contain letters and numbers between 5-20 characters long',
             )
             .isAlphanumeric()
-            .withMessage(
-                'Username must only contain letters and numbers'
-            ),
+            .withMessage('Username must only contain letters and numbers'),
     ]),
     body('password')
         .trim()
@@ -31,9 +29,7 @@ export const loginValidation = [
         .isLength({ min: 8, max: 64 })
         .withMessage('Password must be 8 to 64 characters long')
         .isAlphanumeric()
-        .withMessage(
-            'Password must contains only numbers and letters without spaces'
-        ),
+        .withMessage('Password must contains only numbers and letters without spaces'),
 ];
 
 export const signupValidation = [
@@ -69,8 +65,7 @@ export const signupValidation = [
         .isEmail()
         .withMessage('Please enter a valid email address')
         .custom(async (signingEmail) => {
-            if (isDisposableEmail(signingEmail))
-                throw Error('This Email is not allowed to used');
+            if (isDisposableEmail(signingEmail)) throw Error('This Email is not allowed to used');
 
             const userModel = new UserModel();
             const [userRow] = await userModel.find({ email: signingEmail });
@@ -86,12 +81,8 @@ export const signupValidation = [
         .withMessage('Password must be 8 to 64 characters long')
         .isAlphanumeric()
         .withMessage('Password must contains only numbers and letters without spaces'),
-    body(
-        'confirmPassword',
-        'Password does not match with the confirm password'
-    ).custom(
-        (signingConfirmPassword, { req }) =>
-            signingConfirmPassword === req.body.password
+    body('confirmPassword', 'Password does not match with the confirm password').custom(
+        (signingConfirmPassword, { req }) => signingConfirmPassword === req.body.password,
     ),
     body('birthDate')
         .notEmpty()
@@ -100,7 +91,7 @@ export const signupValidation = [
         .withMessage('Birth date must be a valid yyyy-mm-dd date')
         .custom((signingBirthDate) => {
             const age = Math.floor(
-                (new Date() - new Date(signingBirthDate)) / (1000 * 60 * 60 * 24 * 365) // convert ms to years
+                (new Date() - new Date(signingBirthDate)) / (1000 * 60 * 60 * 24 * 365), // convert ms to years
             );
             return age >= 13;
         })
@@ -126,7 +117,9 @@ export const forgotPasswordValidation = [
             .isLength({ min: 5, max: 20 })
             .withMessage('Username must be between 5-20 characters long')
             .isAlphanumeric()
-            .withMessage('Username must only contain letters and numbers between 5-20 characters long'),
+            .withMessage(
+                'Username must only contain letters and numbers between 5-20 characters long',
+            ),
     ]),
 ];
 
@@ -139,12 +132,8 @@ export const resetPasswordValidation = [
         .withMessage('Password must be between 8-64 characters long')
         .isAlphanumeric()
         .withMessage('Password must contains only numbers and letters without spaces'),
-    body(
-        'confirmPassword',
-        'Password does not match with the confirm password'
-    ).custom(
-        (signingConfirmPassword, { req }) =>
-            signingConfirmPassword === req.body.password
+    body('confirmPassword', 'Password does not match with the confirm password').custom(
+        (signingConfirmPassword, { req }) => signingConfirmPassword === req.body.password,
     ),
 ];
 

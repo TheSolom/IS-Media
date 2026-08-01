@@ -27,14 +27,17 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.use(cors({ origin: ['http://localhost:3000', 'https://is-media.vercel.app', 'http://localhost:4000'], credentials: true }));
+app.use(
+    cors({
+        origin: ['http://localhost:3000', 'https://is-media.vercel.app', 'http://localhost:4000'],
+        credentials: true,
+    }),
+);
 app.use(helmet());
 app.use(compression());
 
-if (process.env.NODE_ENV !== "production")
-    app.use(morgan("dev"));
-else
-    app.use(morgan("combined"));
+if (process.env.NODE_ENV !== 'production') app.use(morgan('dev'));
+else app.use(morgan('combined'));
 
 app.get(['/', '/api', '/api/v1'], (_req, res) => {
     res.status(418).json({
@@ -50,7 +53,8 @@ app.use('/api/v1/users', userRoutes, userFollowsRoutes, userBlocksRoutes, userTa
 app.use('/api/v1/posts', postRoutes, postLikesRoutes, postCommentsRoutes, postTagsRoutes);
 app.use('/api/v1/stories', storyRoutes);
 app.use('/api/v1/comments', commentTagsRoutes);
-app.use('/api/v1/conversations',
+app.use(
+    '/api/v1/conversations',
     conversationRoutes,
     conversationPermissionsRoutes,
     participantRoutes,
