@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
 
+import bodyMiddleware from './middlewares/bodyMiddleware.js';
 import errorMiddleware from './middlewares/errorMiddleware.js';
 import authRoutes from './routes/authRoutes.js';
 import verificationRoutes from './routes/verificationRoutes.js';
@@ -26,6 +27,7 @@ const app = express();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(bodyMiddleware);
 
 app.use(
     cors({
