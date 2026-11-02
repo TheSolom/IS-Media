@@ -21,14 +21,13 @@ const useLogin = () => {
 				credentials: "include",
 			});
 
-			if (!loginRes.ok)
-				throw new Error('Something went wrong');
-
 			const loginData = await loginRes.json();
-			if (!loginData.success)
-				throw new Error(loginData.cause ? loginData.cause[0].msg : loginData.message);
+			if (!loginData.success) {
+				const errMsg = loginData.cause?.[0]?.msg || loginData.message || 'Something went wrong';
+				throw new Error(errMsg);
+			}
 
-			const { userId } = loginData;
+			const userId = loginData.user?.id || loginData.userId;
 
 			const userRes = await fetch(`http://localhost:5000/api/v1/users/${userId}/profile`, {
 				method: "GET",
@@ -36,8 +35,10 @@ const useLogin = () => {
 			});
 
 			const userData = await userRes.json();
-			if (!userData.success)
-				throw new Error(userData.cause[0].msg);
+			if (!userData.success) {
+				const errMsg = userData.cause?.[0]?.msg || userData.message || 'Failed to fetch user';
+				throw new Error(errMsg);
+			}
 
 			const { user } = userData;
 

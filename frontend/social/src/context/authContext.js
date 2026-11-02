@@ -14,17 +14,17 @@ export const AuthContextProvider = ({ children }) => {
     });
 
     if (!loginRes.data.success) {
-      return loginRes.data.cause;
+      throw new Error(loginRes.data.message || 'Login failed');
     }
 
-    const userId = loginRes.data.userId;
+    const userId = loginRes.data.user?.id || loginRes.data.userId;
 
     const userRes = await axios.get(`http://localhost:5000/api/v1/users/${userId}/profile`, {
       withCredentials: true,
     });
 
     if (!userRes.data.success) {
-      return loginRes.data.message;
+      throw new Error(userRes.data.message || 'Failed to fetch user profile');
     }
 
     setCurrentUser(userRes.data.user);

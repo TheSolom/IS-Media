@@ -3,24 +3,27 @@ import { body, oneOf } from 'express-validator';
 import UserModel from '../models/userModel.js';
 
 export const loginValidation = [
-    oneOf([
-        body('emailOrUsername')
-            .trim()
-            .notEmpty()
-            .withMessage('Please enter an email or username')
-            .isEmail()
-            .withMessage('Please enter a valid email'),
-        body('emailOrUsername')
-            .trim()
-            .notEmpty()
-            .withMessage('Please enter an email or username')
-            .isLength({ min: 5, max: 20 })
-            .withMessage(
-                'Username must only contain letters and numbers between 5-20 characters long',
-            )
-            .isAlphanumeric()
-            .withMessage('Username must only contain letters and numbers'),
-    ]),
+    oneOf(
+        [
+            body('emailOrUsername')
+                .trim()
+                .notEmpty()
+                .withMessage('Please enter an email or username')
+                .isEmail()
+                .withMessage('Please enter a valid email'),
+            body('emailOrUsername')
+                .trim()
+                .notEmpty()
+                .withMessage('Please enter an email or username')
+                .isLength({ min: 5, max: 20 })
+                .withMessage(
+                    'Username must only contain letters and numbers between 5-20 characters long',
+                )
+                .isAlphanumeric()
+                .withMessage('Username must only contain letters and numbers'),
+        ],
+        { message: 'Please enter a valid email or username (5-20 characters)' },
+    ),
     body('password')
         .trim()
         .notEmpty()

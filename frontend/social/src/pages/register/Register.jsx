@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import './register.scss';
 import axios from 'axios';
+import { extractErrorMessage } from '../../utils/error';
+import './register.scss';
 
 const Register = () => {
     const [inputs, setInputs] = useState({
@@ -32,7 +33,7 @@ const Register = () => {
             navigate('/login');
             alert('Registered successfully');
         } catch (err) {
-            setErr(err.response.data.cause);
+            setErr(extractErrorMessage(err, 'Failed to register'));
         }
     };
 
