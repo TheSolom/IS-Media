@@ -1,9 +1,10 @@
 import { Router } from 'express';
 
 import { searchUser, getUser, updateUser } from '../controllers/userController.js';
-import { searchUserValidation, updateUserValidation } from '../validations/userValidation.js';
-import cursorPaginationValidation from '../validations/cursorPaginationValidation.js';
 import authMiddleware from '../middlewares/authMiddleware.js';
+import { blockGuestCredentialChanges } from '../middlewares/guestGuard.js';
+import cursorPaginationValidation from '../validations/cursorPaginationValidation.js';
+import { searchUserValidation, updateUserValidation } from '../validations/userValidation.js';
 
 const router = Router();
 
@@ -13,6 +14,6 @@ router.get('/:username/search', cursorPaginationValidation, searchUserValidation
 
 router.get('/:userId/profile', getUser);
 
-router.put('/profile', updateUserValidation, updateUser);
+router.put('/profile', blockGuestCredentialChanges, updateUserValidation, updateUser);
 
 export default router;

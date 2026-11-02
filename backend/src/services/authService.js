@@ -1,9 +1,10 @@
 import bcrypt from 'bcrypt';
 import isEmail from 'validator/lib/isEmail.js';
 
-import * as tokenService from './tokenService.js';
 import UserModel from '../models/userModel.js';
 import * as parseUtil from '../utils/parseUtil.js';
+
+import * as tokenService from './tokenService.js';
 
 export const checkUser = async (emailOrUsername) => {
     const userModel = new UserModel();
@@ -95,6 +96,7 @@ export const refreshLogin = async (cookies) => {
         userId: decodedUserId,
         username: decodedUsername,
         exp: decodedExp,
+        isGuest: decodedIsGuest,
     } = verifyTokenResult.decoded;
 
     const currentTime = Math.floor(Date.now() / 1000);
@@ -136,6 +138,7 @@ export const refreshLogin = async (cookies) => {
         success: true,
         userId: decodedUserId,
         username: decodedUsername,
+        isGuest: Boolean(decodedIsGuest),
     };
 };
 
@@ -232,6 +235,42 @@ export const resetPassword = async (token, password) => {
         return {
             success: false,
             message: 'An error occurred while resetting the password',
+            status: 500,
+        };
+    }
+};
+
+export const loginGuestUser = async () => {
+    const userModel = new UserModel();
+    try {
+        let [userRow] = await userModel.find({ username: 'demo_user' });
+
+        if (!userRow.length) {
+            [userRow] = await userModel.find({ email: 'demo@ismedia.com' });
+        }
+
+        if (!userRow.length) {
+            return {
+                success: false,
+                message: 'Demo account is not available. Please run database seeding.',
+                status: 404,
+            };
+        }
+
+        const user = userRow[0];
+
+        return {
+            success: true,
+            userId: user.id,
+            username: user.username,
+            email: user.email,
+            isGuest: true,
+        };
+    } catch (error) {
+        console.error(error);
+        return {
+            success: false,
+            message: 'An error occurred while logging in guest user',
             status: 500,
         };
     }

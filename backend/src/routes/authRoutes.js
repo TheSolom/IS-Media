@@ -2,6 +2,7 @@ import { Router } from 'express';
 
 import {
     login,
+    guestLogin,
     refreshLogin,
     signup,
     logout,
@@ -9,17 +10,19 @@ import {
     resetPassword,
     getUploadSignature,
 } from '../controllers/authController.js';
+import authMiddleware from '../middlewares/authMiddleware.js';
 import {
     loginValidation,
     signupValidation,
     forgotPasswordValidation,
     resetPasswordValidation,
 } from '../validations/authValidation.js';
-import authMiddleware from '../middlewares/authMiddleware.js';
 
 const router = Router();
 
 router.post('/login', loginValidation, login);
+
+router.post('/guest-login', guestLogin);
 
 router.get('/refresh-token', refreshLogin);
 

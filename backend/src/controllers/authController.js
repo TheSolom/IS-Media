@@ -1,10 +1,10 @@
 import * as authService from '../services/authService.js';
-import { sendResetPasswordMail } from '../services/verificationService.js';
 import * as tokenService from '../services/tokenService.js';
-import CustomError from '../utils/errorHandling.js';
-import requestValidation from '../utils/requestValidation.js';
-import { parseCookies } from '../utils/parseUtil.js';
+import { sendResetPasswordMail } from '../services/verificationService.js';
 import signUploadForm from '../utils/cloudinary/cloudinarySignature.js';
+import CustomError from '../utils/errorHandling.js';
+import { parseCookies } from '../utils/parseUtil.js';
+import requestValidation from '../utils/requestValidation.js';
 
 export async function login(req, res, next) {
     const { emailOrUsername, password } = req.body;
@@ -18,7 +18,7 @@ export async function login(req, res, next) {
 
         if (!loginResult.isVerified) {
             req.user = {
-                userId: loginResult.userId,
+                id: loginResult.userId,
                 username: loginResult.username,
                 email: loginResult.email,
             };
@@ -71,14 +71,16 @@ export async function refreshLogin(req, res, next) {
         if (!refreshLoginResult.success)
             throw new CustomError(refreshLoginResult.message, refreshLoginResult.status);
 
-        const { userId, username } = refreshLoginResult;
+        const { userId, username, isGuest } = refreshLoginResult;
 
         const accessTokenResult = tokenService.createToken(
             {
                 userId,
                 username,
+                isGuest: Boolean(isGuest),
                 isSecure: false,
             },
+            process.env.ACCESS_TOKEN_SECRET,
             process.env.ACCESS_TOKEN_EXPIRES_IN,
         );
 
@@ -123,7 +125,7 @@ export async function signup(req, res, next) {
 
         const { insertId: userId } = signupResult.createResult;
 
-        req.user = { userId, username, email };
+        req.user = { id: userId, username, email };
 
         res.status(201).json({
             success: true,
@@ -178,6 +180,10 @@ export async function forgotPassword(req, res, next) {
     try {
         requestValidation(req);
 
+        if (emailOrUsername === 'demo_user' || emailOrUsername === 'demo@ismedia.com') {
+            throw new CustomError('Password reset is not permitted for the demo account', 403);
+        }
+
         const checkUserResult = await authService.checkUser(emailOrUsername);
 
         if (!checkUserResult.success)
@@ -224,7 +230,7 @@ export async function resetPassword(req, res, next) {
     }
 }
 
-export async function getUploadSignature(req, res, next) {
+export async function getUploadSignature(req, res, _next) {
     const { timestamp, signature } = signUploadForm();
 
     res.status(200).json({
@@ -233,4 +239,40 @@ export async function getUploadSignature(req, res, next) {
         cloudname: process.env.CLOUDINARY_NAME,
         apikey: process.env.CLOUDINARY_API_KEY,
     });
+}
+
+export async function guestLogin(req, res, next) {
+    try {
+        const guestResult = await authService.loginGuestUser();
+
+        if (!guestResult.success) throw new CustomError(guestResult.message, guestResult.status);
+
+        const createTokensResult = await tokenService.createLoginTokens({
+            userId: guestResult.userId,
+            username: guestResult.username,
+            isGuest: true,
+            isSecure: true,
+        });
+
+        if (!createTokensResult.success)
+            throw new CustomError('An error occurred while logging in the guest user', 500);
+
+        res.setHeader('Set-Cookie', [
+            `accessToken=${createTokensResult.accessToken}; Path=/; Max-Age=${process.env.ACCESS_TOKEN_EXPIRES_IN}; HttpOnly; SameSite=None; Secure`,
+            `refreshToken=${createTokensResult.refreshToken}; Path=/; Max-Age=${process.env.REFRESH_TOKEN_EXPIRES_IN}; HttpOnly; SameSite=None; Secure`,
+        ]);
+
+        res.status(200).json({
+            success: true,
+            message: 'Successfully logged in as guest',
+            user: {
+                id: guestResult.userId,
+                username: guestResult.username,
+                email: guestResult.email,
+                isGuest: true,
+            },
+        });
+    } catch (error) {
+        next(error);
+    }
 }
