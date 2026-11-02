@@ -162,7 +162,15 @@ export const createOTP = async (userId, purpose) => {
 
     const otpModel = new OTPModel();
     try {
-        const createResult = await otpModel.create({ user_id: userId, otp, purpose });
+        const expirationSeconds = parseInt(process.env.OTP_EXPIRES_IN, 10) || 900;
+        const expirationDate = new Date(Date.now() + expirationSeconds * 1000);
+
+        const createResult = await otpModel.create({
+            user_id: userId,
+            otp,
+            purpose,
+            expiration_date: expirationDate,
+        });
 
         if (!createResult.affectedRows) throw Error('An error occurred while creating the otp');
 
@@ -201,9 +209,10 @@ export const verifyOTP = async (userId, otp, purpose) => {
         if (!otpRow.length) throw Error('Invalid OTP');
 
         const otpExp = new Date(otpRow[0].expiration_date);
-        otpExp.setMinutes(otpExp.getMinutes() - otpExp.getTimezoneOffset());
 
-        if (otpExp < Date.now()) throw Error('OTP expired');
+        if (Number.isNaN(otpExp.getTime()) || otpExp.getTime() < Date.now()) {
+            throw Error('OTP expired');
+        }
 
         return { success: true };
     } catch (error) {
