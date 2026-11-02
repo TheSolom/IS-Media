@@ -9,9 +9,12 @@ export const searchUser = async (username, limit) => {
     try {
         const [usersRows] = await userModel.search(username, 'username', limit);
 
+        // Sanitize sensitive fields before returning search results
+        const sanitizedUsers = usersRows.map(({ password, email, ...rest }) => rest);
+
         return {
             success: true,
-            users: usersRows,
+            users: sanitizedUsers,
         };
     } catch (error) {
         console.error(error);
@@ -38,10 +41,13 @@ export const getUser = async (userId) => {
 
         delete userRow[0].password;
 
-        const date = new Date(userRow[0].birth_date);
-        date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
-        const datePart = date.toISOString().split('T')[0];
-        userRow[0].birth_date = datePart;
+        if (userRow[0].birth_date) {
+            const date = new Date(userRow[0].birth_date);
+            if (!Number.isNaN(date.getTime())) {
+                date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+                userRow[0].birth_date = date.toISOString().split('T')[0];
+            }
+        }
 
         return {
             success: true,
@@ -63,46 +69,56 @@ export const updateUser = async (userNewData) => {
             ? await bcrypt.hash(userNewData.password, 10)
             : undefined;
 
+        const resolveField = (camel, snake) => (camel !== undefined ? camel : snake);
+
         const dbData = {
             firstname: userNewData.firstname,
             lastname: userNewData.lastname,
             username: userNewData.username,
             email: userNewData.email,
             password: hashedPassword,
-            birth_date: userNewData.birthDate ?? userNewData.birth_date,
+            birth_date: resolveField(userNewData.birthDate, userNewData.birth_date),
             gender: userNewData.gender,
             about: userNewData.about,
-            profile_picture: userNewData.profilePicture ?? userNewData.profile_picture,
-            cover_picture: userNewData.coverPicture ?? userNewData.cover_picture,
-            lives_in: userNewData.livesIn ?? userNewData.lives_in,
-            works_at: userNewData.worksAt ?? userNewData.works_at,
+            profile_picture: resolveField(userNewData.profilePicture, userNewData.profile_picture),
+            cover_picture: resolveField(userNewData.coverPicture, userNewData.cover_picture),
+            lives_in: resolveField(userNewData.livesIn, userNewData.lives_in),
+            works_at: resolveField(userNewData.worksAt, userNewData.works_at),
             relationship: userNewData.relationship,
         };
 
-        // Remove undefined fields
+        // Remove undefined fields (leaving null for fields intended to be cleared)
         Object.keys(dbData).forEach((key) => dbData[key] === undefined && delete dbData[key]);
+
+        if (Object.keys(dbData).length === 0) {
+            return { success: true, message: 'No fields provided to update' };
+        }
 
         const userModel = new UserModel();
 
         const [userOldData] = await userModel.find({ id: userNewData.id });
-        if (!userOldData.length) throw new Error('No user found with provided id');
+        if (!userOldData.length) {
+            return {
+                success: false,
+                message: 'No user found with provided id',
+                status: 404,
+            };
+        }
 
-        const updateResult = await userModel.update(dbData, { id: userNewData.id });
+        await userModel.update(dbData, { id: userNewData.id });
 
-        if (!updateResult.affectedRows) throw new Error('No user found with provided id');
-
-        const newProfilePic = userNewData.profilePicture ?? userNewData.profile_picture;
+        const newProfilePic = resolveField(userNewData.profilePicture, userNewData.profile_picture);
         if (
-            newProfilePic &&
+            newProfilePic !== undefined &&
             userOldData[0].profile_picture &&
             userOldData[0].profile_picture !== newProfilePic
         ) {
             await deleteMedia(userOldData[0].profile_picture);
         }
 
-        const newCoverPic = userNewData.coverPicture ?? userNewData.cover_picture;
+        const newCoverPic = resolveField(userNewData.coverPicture, userNewData.cover_picture);
         if (
-            newCoverPic &&
+            newCoverPic !== undefined &&
             userOldData[0].cover_picture &&
             userOldData[0].cover_picture !== newCoverPic
         ) {
@@ -112,6 +128,15 @@ export const updateUser = async (userNewData) => {
         return { success: true };
     } catch (error) {
         console.error(error);
+
+        if (error.code === 'ER_DUP_ENTRY') {
+            return {
+                success: false,
+                message: 'Username or email is already in use',
+                status: 409,
+            };
+        }
+
         return {
             success: false,
             message: 'An error occurred while updating the user',
