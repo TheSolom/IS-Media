@@ -2,13 +2,13 @@ import jwt from 'jsonwebtoken';
 
 import TokenModel from '../models/tokenModel.js';
 
-export const verifyToken = (token, secretKey) => {
+export const verifyToken = (token, secretKey = process.env.ACCESS_TOKEN_SECRET) => {
     try {
         const decoded = jwt.verify(token, secretKey);
 
         return { success: true, decoded };
     } catch (error) {
-        return { success: false };
+        return { success: false, error: error.message };
     }
 };
 
@@ -29,7 +29,7 @@ export const blacklistToken = async (token) => {
             success: true,
             updateResult,
         };
-    } catch (error) {
+    } catch {
         return {
             success: false,
             message: 'An error occurred while blacklisting the token',
@@ -63,13 +63,16 @@ export const getToken = async (token) => {
 
 export const createToken = (userData, secretKey, expirationDurationSeconds) => {
     try {
+        const expiresIn = Number.isFinite(Number(expirationDurationSeconds))
+            ? Number(expirationDurationSeconds)
+            : expirationDurationSeconds;
         const token = jwt.sign(userData, secretKey, {
-            expiresIn: expirationDurationSeconds,
+            expiresIn,
         });
 
         const currentTimestampSeconds = Math.floor(Date.now() / 1000);
         const expiryTimestampSeconds =
-            currentTimestampSeconds + parseInt(expirationDurationSeconds, 10);
+            currentTimestampSeconds + Number.parseInt(expirationDurationSeconds, 10);
         const expirationDate = new Date(expiryTimestampSeconds * 1000);
 
         return {

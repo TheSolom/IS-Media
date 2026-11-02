@@ -5,6 +5,11 @@ const requireBody = (req, _res, next) => {
 
     if (!methodsWithBody.includes(req.method)) return next();
 
+    if (req.path.endsWith('/logout') || req.path.endsWith('/guest-login')) {
+        req.body = req.body || {};
+        return next();
+    }
+
     const hasBody =
         req.body !== undefined &&
         req.body !== null &&
