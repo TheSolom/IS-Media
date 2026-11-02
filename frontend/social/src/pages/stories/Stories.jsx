@@ -30,7 +30,7 @@ const Stories = () => {
 
             if (!response.data) return [];
 
-            const { lastId, stories } = response.data;
+            const { stories } = response.data;
 
             // nextPage1 = lastId;
 
@@ -54,7 +54,7 @@ const Stories = () => {
 
             if (!response.data) return [];
 
-            const { lastId, stories } = response.data;
+            const { stories } = response.data;
 
             // nextPage2 = lastId;
 

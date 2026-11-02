@@ -22,7 +22,7 @@ const Stories = () => {
 
         if (!response.data) return [];
 
-        const { lastId, stories } = response.data;
+        const { stories } = response.data;
 
         // nextPage = lastId;
 

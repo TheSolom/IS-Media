@@ -25,7 +25,7 @@ const Posts = ({ userId, isProfile }) => {
 
         if (!response.data) return [];
 
-        const { lastId, posts } = response.data;
+        const { posts } = response.data;
 
         // nextPage = lastId;
 

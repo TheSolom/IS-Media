@@ -24,7 +24,7 @@ const Followings = () => {
 
             if (!response.data) return [];
 
-            const { lastId, followings } = response.data;
+            const { followings } = response.data;
 
             // nextPage = lastId;
 

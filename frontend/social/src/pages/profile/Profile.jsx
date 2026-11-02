@@ -1,10 +1,4 @@
 import './profile.scss';
-import FacebookTwoToneIcon from '@mui/icons-material/FacebookTwoTone';
-import LinkedInIcon from '@mui/icons-material/LinkedIn';
-import InstagramIcon from '@mui/icons-material/Instagram';
-import TwitterIcon from '@mui/icons-material/Twitter';
-import PlaceIcon from '@mui/icons-material/Place';
-import LanguageIcon from '@mui/icons-material/Language';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Posts from '../../components/posts/Posts';
@@ -28,7 +22,7 @@ const Profile = () => {
 
     const userId = parseInt(useLocation().pathname.split('/')[2]);
 
-    const { isLoading, error, data } = useQuery(
+    const { isLoading, data } = useQuery(
         ['users'],
         async () => {
             const response = await makeRequest.get(`users/${userId}/profile`);
@@ -46,7 +40,6 @@ const Profile = () => {
 
     const {
         isLoading: fIsLoading,
-        error: fError,
         data: fData,
     } = useQuery(
         ['followers', userId],
@@ -66,8 +59,6 @@ const Profile = () => {
 
     const {
         data: blockStatus,
-        isLoading: blockStatusLoading,
-        error: blockStatusError,
     } = useQuery(
         ['blockStatus', userId],
         async () => {

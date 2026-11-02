@@ -1,5 +1,4 @@
 import './blocks.scss';
-import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { makeRequest } from '../../axios';
@@ -25,7 +24,7 @@ const Blocks = () => {
 
             if (!response.data) return [];
 
-            const { lastId, blocks } = response.data;
+            const { blocks } = response.data;
 
             // nextPage = lastId;
 

@@ -24,7 +24,7 @@ const Followers = () => {
 
             if (!response.data) return { followers: [], followersState: {} };
 
-            const { lastId, followers } = response.data;
+            const { followers } = response.data;
 
             // nextPage = lastId;
 

@@ -31,8 +31,6 @@ const Post = ({ post }) => {
 
     const {
         data: blockStatus,
-        isLoading: blockStatusLoading,
-        error: blockStatusError,
     } = useQuery(
         ['blockStatus', post.parentPost?.author.id],
         async () => {
@@ -48,7 +46,7 @@ const Post = ({ post }) => {
         },
     );
 
-    const { isLoading, error, data } = useQuery(
+    const { isLoading, data } = useQuery(
         ['likes', post.id],
         async () => {
             const res = await makeRequest.get(
@@ -57,7 +55,7 @@ const Post = ({ post }) => {
 
             if (!res.data) return [];
 
-            const { lastId, likes } = res.data;
+            const { likes } = res.data;
 
             // nextPage = lastId;
 
