@@ -131,6 +131,31 @@ export const postParticipant = async (userId, conversationId) => {
     const participantModel = new ParticipantModel();
 
     try {
+        const [existing] = await participantModel.find({
+            user_id: userId,
+            conversation_id: conversationId,
+        });
+
+        if (existing.length) {
+            if (existing[0].deleted_at === null) {
+                return {
+                    success: false,
+                    message: 'User is already a participant',
+                    status: 409,
+                };
+            }
+
+            // Re-activate previously soft-deleted participant
+            const updateResult = await participantModel.update(
+                { deleted_at: null },
+                { id: existing[0].id },
+            );
+            return {
+                success: true,
+                createResult: updateResult,
+            };
+        }
+
         const createResult = await participantModel.create({
             user_id: userId,
             conversation_id: conversationId,

@@ -42,7 +42,8 @@ export default class ParticipantModel extends BaseModel {
                             ON r.id = pr.role_id
                         WHERE
                             ${this.getTableName()}.user_id = ?
-                            AND ${this.getTableName()}.conversation_id = ?`;
+                            AND ${this.getTableName()}.conversation_id = ?
+                            AND ${this.getTableName()}.deleted_at IS NULL`;
 
         const result = await connection.execute(query, [userId, conversationId]);
         return result;
@@ -64,6 +65,7 @@ export default class ParticipantModel extends BaseModel {
                             ON r.id = pr.role_id
                         WHERE
                             ${this.getTableName()}.conversation_id = ?
+                            AND ${this.getTableName()}.deleted_at IS NULL
                         ORDER BY
                             pr.role_id DESC,
                             ${this.getTableName()}.created_at DESC`;
