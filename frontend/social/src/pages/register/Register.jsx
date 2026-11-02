@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { extractErrorMessage } from '../../utils/error';
+import { extractFormErrors } from '../../utils/error';
 import './register.scss';
 
 const Register = () => {
@@ -15,15 +15,23 @@ const Register = () => {
         birthDate: '',
         gender: 'male',
     });
-    const [err, setErr] = useState(null);
+    const [errors, setErrors] = useState({ general: null, fields: {} });
     const navigate = useNavigate();
 
     const handleChange = (e) => {
-        setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+        const { name, value } = e.target;
+        setInputs((prev) => ({ ...prev, [name]: value }));
+        if (errors.fields[name]) {
+            setErrors((prev) => ({
+                ...prev,
+                fields: { ...prev.fields, [name]: null },
+            }));
+        }
     };
 
     const handleClick = async (e) => {
         e.preventDefault();
+        setErrors({ general: null, fields: {} });
 
         try {
             await axios.post(
@@ -33,7 +41,7 @@ const Register = () => {
             navigate('/login');
             alert('Registered successfully');
         } catch (err) {
-            setErr(extractErrorMessage(err, 'Failed to register'));
+            setErrors(extractFormErrors(err, 'Failed to register'));
         }
     };
 
@@ -53,71 +61,132 @@ const Register = () => {
                 </div>
                 <div className="right">
                     <h1>Register</h1>
-                    <form>
-                        <input
-                            type="text"
-                            placeholder="firstname"
-                            name="firstname"
-                            onChange={handleChange}
-                        />
-                        <input
-                            type="text"
-                            placeholder="lastname"
-                            name="lastname"
-                            onChange={handleChange}
-                        />
-                        <input
-                            type="text"
-                            placeholder="Username"
-                            name="username"
-                            onChange={handleChange}
-                        />
-                        <input
-                            type="email"
-                            placeholder="Email"
-                            name="email"
-                            onChange={handleChange}
-                        />
-                        <input
-                            type="password"
-                            placeholder="Password"
-                            name="password"
-                            onChange={handleChange}
-                        />
-                        <input
-                            type="password"
-                            placeholder="Confirm Password"
-                            name="confirmPassword"
-                            onChange={handleChange}
-                        />
-                        <label>
-                            Birth date :
-                            <input
-                                type="text"
-                                placeholder="yyyy-mm-dd"
-                                name="birthDate"
-                                onChange={handleChange}
-                            />
-                        </label>
-                        <label>
-                            Gender :
-                            <select name="gender" value={inputs.gender} onChange={handleChange}>
-                                <option value="male">Male</option>
-                                <option value="female">Female</option>
-                            </select>
-                        </label>
-                        {err && (
-                            <div
-                                style={{
-                                    color: 'red',
-                                    fontWeight: 'bold',
-                                    marginTop: '10px',
-                                }}
-                            >
-                                {err}
+                    <form onSubmit={handleClick}>
+                        {errors.general && (
+                            <div className="form-error-alert">
+                                {errors.general}
                             </div>
                         )}
-                        <button onClick={handleClick}>Register</button>
+                        <div className="input-group">
+                            <input
+                                type="text"
+                                placeholder="First Name"
+                                name="firstname"
+                                value={inputs.firstname}
+                                onChange={handleChange}
+                            />
+                            {errors.fields.firstname && (
+                                <span className="field-error">
+                                    {errors.fields.firstname}
+                                </span>
+                            )}
+                        </div>
+                        <div className="input-group">
+                            <input
+                                type="text"
+                                placeholder="Last Name"
+                                name="lastname"
+                                value={inputs.lastname}
+                                onChange={handleChange}
+                            />
+                            {errors.fields.lastname && (
+                                <span className="field-error">
+                                    {errors.fields.lastname}
+                                </span>
+                            )}
+                        </div>
+                        <div className="input-group">
+                            <input
+                                type="text"
+                                placeholder="Username"
+                                name="username"
+                                value={inputs.username}
+                                onChange={handleChange}
+                            />
+                            {errors.fields.username && (
+                                <span className="field-error">
+                                    {errors.fields.username}
+                                </span>
+                            )}
+                        </div>
+                        <div className="input-group">
+                            <input
+                                type="email"
+                                placeholder="Email"
+                                name="email"
+                                value={inputs.email}
+                                onChange={handleChange}
+                            />
+                            {errors.fields.email && (
+                                <span className="field-error">
+                                    {errors.fields.email}
+                                </span>
+                            )}
+                        </div>
+                        <div className="input-group">
+                            <input
+                                type="password"
+                                placeholder="Password"
+                                name="password"
+                                value={inputs.password}
+                                onChange={handleChange}
+                            />
+                            {errors.fields.password && (
+                                <span className="field-error">
+                                    {errors.fields.password}
+                                </span>
+                            )}
+                        </div>
+                        <div className="input-group">
+                            <input
+                                type="password"
+                                placeholder="Confirm Password"
+                                name="confirmPassword"
+                                value={inputs.confirmPassword}
+                                onChange={handleChange}
+                            />
+                            {errors.fields.confirmPassword && (
+                                <span className="field-error">
+                                    {errors.fields.confirmPassword}
+                                </span>
+                            )}
+                        </div>
+                        <div className="input-group">
+                            <label>
+                                Birth date :
+                                <input
+                                    type="text"
+                                    placeholder="yyyy-mm-dd"
+                                    name="birthDate"
+                                    value={inputs.birthDate}
+                                    onChange={handleChange}
+                                />
+                            </label>
+                            {errors.fields.birthDate && (
+                                <span className="field-error">
+                                    {errors.fields.birthDate}
+                                </span>
+                            )}
+                        </div>
+                        <div className="input-group">
+                            <label>
+                                Gender :
+                                <select
+                                    name="gender"
+                                    value={inputs.gender}
+                                    onChange={handleChange}
+                                >
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                </select>
+                            </label>
+                            {errors.fields.gender && (
+                                <span className="field-error">
+                                    {errors.fields.gender}
+                                </span>
+                            )}
+                        </div>
+                        <button type="submit">Register</button>
                     </form>
                 </div>
             </div>

@@ -1,7 +1,7 @@
 import { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/authContext';
-import { extractErrorMessage } from '../../utils/error';
+import { extractFormErrors } from '../../utils/error';
 import './login.scss';
 
 const Login = () => {
@@ -9,22 +9,30 @@ const Login = () => {
         emailOrUsername: '',
         password: '',
     });
-    const [err, setErr] = useState(null);
+    const [errors, setErrors] = useState({ general: null, fields: {} });
 
     const navigate = useNavigate();
 
     const handleChange = (e) => {
-        setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+        const { name, value } = e.target;
+        setInputs((prev) => ({ ...prev, [name]: value }));
+        if (errors.fields[name]) {
+            setErrors((prev) => ({
+                ...prev,
+                fields: { ...prev.fields, [name]: null },
+            }));
+        }
     };
     const { login } = useContext(AuthContext);
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        setErrors({ general: null, fields: {} });
         try {
             await login(inputs);
             navigate('/');
         } catch (err) {
-            setErr(extractErrorMessage(err, 'Failed to login'));
+            setErrors(extractFormErrors(err, 'Failed to login'));
         }
     };
 
@@ -44,31 +52,41 @@ const Login = () => {
                 </div>
                 <div className="right">
                     <h1>Login</h1>
-                    <form>
-                        <input
-                            type="text"
-                            placeholder="Email or Username"
-                            name="emailOrUsername"
-                            onChange={handleChange}
-                        />
-                        <input
-                            type="password"
-                            placeholder="Password"
-                            name="password"
-                            onChange={handleChange}
-                        />
-                        {err && (
-                            <div
-                                style={{
-                                    color: 'red',
-                                    fontWeight: 'bold',
-                                    marginTop: '10px',
-                                }}
-                            >
-                                {err}
+                    <form onSubmit={handleLogin}>
+                        {errors.general && (
+                            <div className="form-error-alert">
+                                {errors.general}
                             </div>
                         )}
-                        <button onClick={handleLogin}>Login</button>
+                        <div className="input-group">
+                            <input
+                                type="text"
+                                placeholder="Email or Username"
+                                name="emailOrUsername"
+                                value={inputs.emailOrUsername}
+                                onChange={handleChange}
+                            />
+                            {errors.fields.emailOrUsername && (
+                                <span className="field-error">
+                                    {errors.fields.emailOrUsername}
+                                </span>
+                            )}
+                        </div>
+                        <div className="input-group">
+                            <input
+                                type="password"
+                                placeholder="Password"
+                                name="password"
+                                value={inputs.password}
+                                onChange={handleChange}
+                            />
+                            {errors.fields.password && (
+                                <span className="field-error">
+                                    {errors.fields.password}
+                                </span>
+                            )}
+                        </div>
+                        <button type="submit">Login</button>
                     </form>
                 </div>
             </div>

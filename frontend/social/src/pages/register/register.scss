@@ -12,6 +12,7 @@
     background-color: white;
     border-radius: 10px;
     min-height: 600px;
+    max-height: 90vh;
     overflow: hidden;
 
     .left {
@@ -31,8 +32,7 @@
         line-height: 100px;
       }
       
-      p {
-      }
+      p {}
 
       span {
         font-size: 14px;
@@ -51,25 +51,84 @@
 
     .right {
       flex: 1;
-      padding: 50px;
+      padding: 40px 50px;
       display: flex;
       flex-direction: column;
-      gap: 50px;
-      justify-content: center;
+      gap: 30px;
+      justify-content: flex-start;
+      overflow-y: auto;
 
       h1 {
-      color: #555;
+        color: #555;
       }
       
       form {
         display: flex;
         flex-direction: column;
-        gap: 30px;
-        
-        input {
-        border: none;
-        border-bottom: 1px solid lightgray;
-        padding: 20px 10px;
+        gap: 20px;
+
+        .form-error-alert {
+          background-color: #fde8e8;
+          color: #9b1c1c;
+          border: 1px solid #f8b4b4;
+          border-radius: 6px;
+          padding: 10px 14px;
+          font-size: 13px;
+          font-weight: 500;
+          line-height: 1.4;
+        }
+
+        .input-group {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+
+          input {
+            border: none;
+            border-bottom: 1px solid lightgray;
+            padding: 12px 10px;
+            font-size: 14px;
+            width: 100%;
+
+            &:focus {
+              outline: none;
+              border-bottom: 1px solid #938eef;
+            }
+          }
+
+          label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #555;
+
+            input {
+              flex: 1;
+              padding: 8px 10px;
+            }
+
+            select {
+              padding: 6px 12px;
+              border: 1px solid lightgray;
+              border-radius: 4px;
+              outline: none;
+              font-size: 14px;
+              cursor: pointer;
+
+              &:focus {
+                border-color: #938eef;
+              }
+            }
+          }
+
+          .field-error {
+            color: #d32f2f;
+            font-size: 12px;
+            font-weight: 500;
+            padding-left: 2px;
+            text-align: left;
+          }
         }
         
         button {
@@ -80,6 +139,8 @@
           color: white;
           font-weight: bold;
           cursor: pointer;
+          border-radius: 4px;
+          margin-top: 10px;
         }
       }
     }

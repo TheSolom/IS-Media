@@ -1,28 +1,65 @@
-const extractValidationMessage = (cause) => {
-    if (!Array.isArray(cause) || cause.length === 0) return null;
+const extractFieldPathAndMsg = (item) => {
+    if (!item) return null;
 
-    const messages = cause
-        .flatMap((item) => {
-            if (item.nestedErrors) {
-                return item.nestedErrors.flat().map((nested) => nested.msg);
+    let fieldPath = item.path;
+    const message = item.msg;
+
+    if (item.nestedErrors?.length > 0) {
+        const firstNested = item.nestedErrors.flat()[0];
+        if (firstNested?.path) {
+            fieldPath = firstNested.path;
+        }
+    }
+
+    if (!fieldPath || !message) return null;
+    return { path: fieldPath, message };
+};
+
+export const extractFormErrors = (err, defaultGeneralMessage = 'An error occurred') => {
+    const result = {
+        general: null,
+        fields: {},
+    };
+
+    if (!err) return result;
+
+    if (typeof err === 'string') {
+        result.general = err;
+        return result;
+    }
+
+    const data = err.response?.data;
+    if (!data) {
+        result.general = err.message || defaultGeneralMessage;
+        return result;
+    }
+
+    if (Array.isArray(data.cause) && data.cause.length > 0) {
+        data.cause.forEach((item) => {
+            const extracted = extractFieldPathAndMsg(item);
+            if (extracted && !result.fields[extracted.path]) {
+                result.fields[extracted.path] = extracted.message;
             }
-            return item.msg ? [item.msg] : [];
-        })
-        .filter(Boolean);
+        });
 
-    return messages.length > 0 ? [...new Set(messages)].join('. ') : null;
+        if (Object.keys(result.fields).length === 0) {
+            result.general = data.message || defaultGeneralMessage;
+        }
+        return result;
+    }
+
+    result.general = data.message || err.message || defaultGeneralMessage;
+    return result;
 };
 
 export const extractErrorMessage = (err, fallbackMessage = 'An error occurred') => {
-    if (!err) return null;
-    if (typeof err === 'string') return err;
+    const formErrors = extractFormErrors(err, fallbackMessage);
+    if (formErrors.general) return formErrors.general;
 
-    const data = err.response?.data;
-    if (data) {
-        const validationMessage = extractValidationMessage(data.cause);
-        if (validationMessage) return validationMessage;
-        if (data.message) return data.message;
+    const fieldMessages = Object.values(formErrors.fields);
+    if (fieldMessages.length > 0) {
+        return fieldMessages[0];
     }
 
-    return err.message || fallbackMessage;
+    return fallbackMessage;
 };

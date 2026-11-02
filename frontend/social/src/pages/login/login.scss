@@ -52,7 +52,7 @@
       padding: 50px;
       display: flex;
       flex-direction: column;
-      gap: 50px;
+      gap: 40px;
       justify-content: center;
 
       h1 {
@@ -62,12 +62,44 @@
       form {
         display: flex;
         flex-direction: column;
-        gap: 30px;
+        gap: 25px;
 
-        input {
-          border: none;
-          border-bottom: 1px solid lightgray;
-          padding: 20px 10px;
+        .form-error-alert {
+          background-color: #fde8e8;
+          color: #9b1c1c;
+          border: 1px solid #f8b4b4;
+          border-radius: 6px;
+          padding: 10px 14px;
+          font-size: 13px;
+          font-weight: 500;
+          line-height: 1.4;
+        }
+
+        .input-group {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+
+          input {
+            border: none;
+            border-bottom: 1px solid lightgray;
+            padding: 14px 10px;
+            font-size: 14px;
+            width: 100%;
+
+            &:focus {
+              outline: none;
+              border-bottom: 1px solid #938eef;
+            }
+          }
+
+          .field-error {
+            color: #d32f2f;
+            font-size: 12px;
+            font-weight: 500;
+            padding-left: 2px;
+            text-align: left;
+          }
         }
 
         button {
@@ -78,6 +110,7 @@
           color: white;
           font-weight: bold;
           cursor: pointer;
+          border-radius: 4px;
         }
       }
     }
