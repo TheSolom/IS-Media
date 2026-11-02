@@ -59,22 +59,55 @@ export const getUser = async (userId) => {
 
 export const updateUser = async (userNewData) => {
     try {
-        const userNewDataHashed = userNewData;
-        userNewDataHashed.password = await bcrypt.hash(userNewData.password, 10);
+        const hashedPassword = userNewData.password
+            ? await bcrypt.hash(userNewData.password, 10)
+            : undefined;
+
+        const dbData = {
+            firstname: userNewData.firstname,
+            lastname: userNewData.lastname,
+            username: userNewData.username,
+            email: userNewData.email,
+            password: hashedPassword,
+            birth_date: userNewData.birthDate ?? userNewData.birth_date,
+            gender: userNewData.gender,
+            about: userNewData.about,
+            profile_picture: userNewData.profilePicture ?? userNewData.profile_picture,
+            cover_picture: userNewData.coverPicture ?? userNewData.cover_picture,
+            lives_in: userNewData.livesIn ?? userNewData.lives_in,
+            works_at: userNewData.worksAt ?? userNewData.works_at,
+            relationship: userNewData.relationship,
+        };
+
+        // Remove undefined fields
+        Object.keys(dbData).forEach((key) => dbData[key] === undefined && delete dbData[key]);
 
         const userModel = new UserModel();
 
-        const updateResult = await userModel.update(userNewDataHashed, { id: userNewData.id });
+        const [userOldData] = await userModel.find({ id: userNewData.id });
+        if (!userOldData.length) throw new Error('No user found with provided id');
+
+        const updateResult = await userModel.update(dbData, { id: userNewData.id });
 
         if (!updateResult.affectedRows) throw new Error('No user found with provided id');
 
-        const [userOldData] = await userModel.find({ id: userNewData.id });
-
-        if (userOldData[0].profile_picture !== userNewData.profilePicture)
+        const newProfilePic = userNewData.profilePicture ?? userNewData.profile_picture;
+        if (
+            newProfilePic &&
+            userOldData[0].profile_picture &&
+            userOldData[0].profile_picture !== newProfilePic
+        ) {
             await deleteMedia(userOldData[0].profile_picture);
+        }
 
-        if (userOldData[0].cover_picture !== userNewData.coverPicture)
+        const newCoverPic = userNewData.coverPicture ?? userNewData.cover_picture;
+        if (
+            newCoverPic &&
+            userOldData[0].cover_picture &&
+            userOldData[0].cover_picture !== newCoverPic
+        ) {
             await deleteMedia(userOldData[0].cover_picture);
+        }
 
         return { success: true };
     } catch (error) {
