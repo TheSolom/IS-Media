@@ -1,5 +1,5 @@
-import * as messageService from '../services/messageService.js';
 import * as conversationPermissionsService from '../services/conversationPermissionsService.js';
+import * as messageService from '../services/messageService.js';
 import SocketManager from '../socket.js';
 import CustomError from '../utils/errorHandling.js';
 import requestValidation from '../utils/requestValidation.js';
@@ -94,7 +94,7 @@ export async function postMessage(req, res, next) {
         const postMessageResult = await messageService.postMessage(
             content,
             image,
-            req.userId,
+            req.user.id,
             conversationId,
             parentId,
         );
@@ -132,7 +132,7 @@ export async function updateMessage(req, res, next) {
         const updateMessageResult = await messageService.updateMessage(
             messageId,
             content,
-            req.userId,
+            req.user.id,
             conversationId,
         );
 
@@ -156,7 +156,7 @@ export async function deleteMessage(req, res, next) {
 
         const deleteMessageResult = await messageService.deleteMessage(
             messageId,
-            req.userId,
+            req.user.id,
             conversationId,
         );
 

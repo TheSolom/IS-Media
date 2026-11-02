@@ -40,8 +40,8 @@ export const postRestrictedPermission = async (req, res, next) => {
             throw new CustomError('You are not allowed to restrict this permission', 403);
 
         const isGroupAdmin =
-            currentConversation.creator_id === req.userId ||
-            (await participantService.isGroupAdmin(req.userId, conversationId));
+            currentConversation.creator_id === req.user.id ||
+            (await participantService.isGroupAdmin(req.user.id, conversationId));
 
         if (!isGroupAdmin || isGroupAdmin?.success) {
             if (isGroupAdmin?.status === 500)
@@ -86,8 +86,8 @@ export const deleteRestrictedPermission = async (req, res, next) => {
             throw new CustomError('You are not allowed to enable this permission', 403);
 
         const isGroupAdmin =
-            currentConversation.creator_id === req.userId ||
-            (await participantService.isGroupAdmin(req.userId, conversationId));
+            currentConversation.creator_id === req.user.id ||
+            (await participantService.isGroupAdmin(req.user.id, conversationId));
 
         if (!isGroupAdmin || isGroupAdmin?.success) {
             if (isGroupAdmin?.status === 500)

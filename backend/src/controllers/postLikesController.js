@@ -1,7 +1,7 @@
-import CustomError from '../utils/errorHandling.js';
 import * as postLikesService from '../services/postLikesService.js';
 import * as postTagsService from '../services/postTagsService.js';
 import * as userTagsService from '../services/userTagsService.js';
+import CustomError from '../utils/errorHandling.js';
 import requestValidation from '../utils/requestValidation.js';
 
 export async function getPostLikes(req, res, next) {
@@ -38,7 +38,7 @@ export async function postPostLike(req, res, next) {
     try {
         if (!postId || postId < 1) throw new CustomError('No valid post id is provided', 422);
 
-        const postPostLikeResult = await postLikesService.postPostLike(postId, req.userId);
+        const postPostLikeResult = await postLikesService.postPostLike(postId, req.user.id);
 
         if (!postPostLikeResult.success)
             throw new CustomError(postPostLikeResult.message, postPostLikeResult.status);
@@ -53,7 +53,7 @@ export async function postPostLike(req, res, next) {
 
             const tagsIds = tagsRows.map((tagRow) => tagRow.tag_id);
 
-            const putUserTagsResult = await userTagsService.putUserTags(tagsIds, req.userId);
+            const putUserTagsResult = await userTagsService.putUserTags(tagsIds, req.user.id);
 
             if (!putUserTagsResult.success)
                 throw new CustomError('An error occurred while liking the post', 500);
@@ -75,7 +75,7 @@ export async function deletePostLike(req, res, next) {
     try {
         if (!postId || postId < 1) throw new CustomError('No valid postId id is provided', 422);
 
-        const deletePostLikeResult = await postLikesService.deletePostLike(postId, req.userId);
+        const deletePostLikeResult = await postLikesService.deletePostLike(postId, req.user.id);
 
         if (!deletePostLikeResult.success)
             throw new CustomError(deletePostLikeResult.message, deletePostLikeResult.status);
@@ -90,7 +90,7 @@ export async function deletePostLike(req, res, next) {
 
             const tagsIds = tagsRows.map((tagRow) => tagRow.tag_id);
 
-            const deleteUserTagsResult = await userTagsService.deleteUserTags(tagsIds, req.userId);
+            const deleteUserTagsResult = await userTagsService.deleteUserTags(tagsIds, req.user.id);
 
             if (!deleteUserTagsResult.success)
                 throw new CustomError('An error occurred while disliking the post', 500);

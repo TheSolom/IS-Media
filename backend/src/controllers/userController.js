@@ -62,7 +62,7 @@ export async function updateUser(req, res, next) {
         } = req.body;
 
         const updateUserResult = await userService.updateUser({
-            id: req.userId,
+            id: req.user?.id,
             firstname,
             lastname,
             username,

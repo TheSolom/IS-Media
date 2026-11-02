@@ -33,13 +33,14 @@ export const updateUserValidation = [
         .withMessage('Username must only contain letters and numbers')
         .custom(async (username, { req }) => {
             const userModel = new UserModel();
+            const currentUserId = req.user.id;
 
-            const [currentUserRow] = await userModel.find({ id: req.userId });
+            const [currentUserRow] = await userModel.find({ id: currentUserId });
             if (!currentUserRow[0].is_verified) throw Error('Your account is not verified yet');
 
             const [foundUserRow] = await userModel.find({ username });
-            if (foundUserRow.length && foundUserRow[0].id !== req.userId)
-                throw Error('This username is already in use, please try another username');
+            if (foundUserRow.length && foundUserRow[0].id !== currentUserId)
+                throw new Error('This username is already in use, please try another username');
         }),
     body('email')
         .normalizeEmail({ gmail_remove_dots: false })
@@ -47,13 +48,14 @@ export const updateUserValidation = [
         .withMessage('Please enter a valid email address')
         .custom(async (email, { req }) => {
             const userModel = new UserModel();
+            const currentUserId = req.user.id;
 
-            const [currentUserRow] = await userModel.find({ id: req.userId });
+            const [currentUserRow] = await userModel.find({ id: currentUserId });
             if (!currentUserRow[0].is_verified) throw Error('Your account is not verified yet');
 
             const [foundUserRow] = await userModel.find({ email });
-            if (foundUserRow.length && foundUserRow[0].id !== req.userId)
-                throw Error('This Email is already in use, please try another email');
+            if (foundUserRow.length && foundUserRow[0].id !== currentUserId)
+                throw new Error('This Email is already in use, please try another email');
         }),
     body('password')
         .trim()
@@ -63,8 +65,9 @@ export const updateUserValidation = [
         .withMessage('Password must contains only numbers and letters without spaces')
         .custom(async (_, { req }) => {
             const userModel = new UserModel();
+            const currentUserId = req.user.id;
 
-            const [currentUserRow] = await userModel.find({ id: req.userId });
+            const [currentUserRow] = await userModel.find({ id: currentUserId });
             if (!currentUserRow[0].is_verified) throw Error('Your account is not verified yet');
         }),
     body('birthDate')
@@ -72,7 +75,7 @@ export const updateUserValidation = [
         .withMessage('Birth date must be a valid yyyy-mm-dd date')
         .custom((birthDate) => {
             const age = Math.floor(
-                (new Date() - new Date(birthDate)) / (1000 * 60 * 60 * 24 * 365), // convert ms to years
+                (Date.now() - new Date(birthDate)) / (1000 * 60 * 60 * 24 * 365), // convert ms to years
             );
             return age >= 13;
         })
@@ -113,7 +116,7 @@ export const updateUserValidation = [
         if (Object.keys(req.body).length <= 13)
             throw new Error('Please provide all fields to update');
 
-        const allowedFields = [
+        const allowedFields = new Set([
             'firstname',
             'lastname',
             'username',
@@ -127,10 +130,10 @@ export const updateUserValidation = [
             'livesIn',
             'worksAt',
             'relationship',
-        ];
+        ]);
 
         Object.keys(req.body).forEach((key) => {
-            if (!allowedFields.includes(key)) throw new Error(`Field ${key} is not allowed`);
+            if (!allowedFields.has(key)) throw new Error(`Field ${key} is not allowed`);
         });
 
         return true;

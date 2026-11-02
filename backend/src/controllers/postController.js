@@ -1,13 +1,13 @@
 import validator from 'validator';
 
 import * as postService from '../services/postService.js';
-import * as tagService from '../services/tagService.js';
 import * as postTagsService from '../services/postTagsService.js';
+import * as tagService from '../services/tagService.js';
 import * as userTagsService from '../services/userTagsService.js';
-import CustomError from '../utils/errorHandling.js';
-import requestValidation from '../utils/requestValidation.js';
-import isContentUnchanged from '../utils/isContentUnchanged.js';
 import deleteMedia from '../utils/deleteMedia.js';
+import CustomError from '../utils/errorHandling.js';
+import isContentUnchanged from '../utils/isContentUnchanged.js';
+import requestValidation from '../utils/requestValidation.js';
 
 export async function getUserPosts(req, res, next) {
     const { userId, lastId, limit } = req.query;
@@ -16,7 +16,7 @@ export async function getUserPosts(req, res, next) {
         requestValidation(req);
 
         const getUserPostsResult = await postService.getUserPosts(
-            userId ?? req.userId,
+            userId ?? req.user.id,
             lastId ?? 0,
             limit ?? 10,
         );
@@ -41,7 +41,7 @@ export async function getFeedPosts(req, res, next) {
         requestValidation(req);
 
         const getFeedPostsResult = await postService.getFeedPosts(
-            req.userId,
+            req.user.id,
             lastId ?? 0,
             limit ?? 10,
         );
@@ -65,13 +65,16 @@ export async function getSuggestedPosts(req, res, next) {
     try {
         requestValidation(req);
 
-        const getMostUsedTagsResult = await userTagsService.getMostUsedTags(req.userId, limit ?? 5);
+        const getMostUsedTagsResult = await userTagsService.getMostUsedTags(
+            req.user.id,
+            limit ?? 5,
+        );
 
         const { tags: tagsRows } = getMostUsedTagsResult;
 
         const getSuggestedPostsResult = await postService.getSuggestedPosts(
             tagsRows,
-            req.userId,
+            req.user.id,
             limit ?? 5,
         );
 
@@ -109,11 +112,12 @@ export async function getPost(req, res, next) {
 
 export async function postPost(req, res, next) {
     const { title, content, parentId } = req.body;
+    const userId = req.user.id;
 
     try {
         requestValidation(req);
 
-        const postPostResult = await postService.postPost(title, content, req.userId, parentId);
+        const postPostResult = await postService.postPost(title, content, userId, parentId);
 
         if (!postPostResult.success)
             throw new CustomError(postPostResult.message, postPostResult.status);
@@ -126,17 +130,17 @@ export async function postPost(req, res, next) {
             const createTagsResult = await postTagsService.postPostTags(tags, postId);
 
             if (!createTagsResult.success) {
-                await postService.deletePost(postId, req.userId);
+                await postService.deletePost(postId, userId);
 
                 throw new CustomError('An error occurred while creating the post', 500);
             }
 
             const { tagsIds } = createTagsResult;
 
-            const putUsedTagsResult = await userTagsService.putUserTags(tagsIds, req.userId);
+            const putUsedTagsResult = await userTagsService.putUserTags(tagsIds, userId);
 
             if (!putUsedTagsResult.success) {
-                await postService.deletePost(postId, req.userId);
+                await postService.deletePost(postId, userId);
 
                 throw new CustomError('An error occurred while creating the post', 500);
             }
@@ -169,7 +173,7 @@ export async function updatePost(req, res, next) {
 
         const { post: currentPost } = getPostResult;
 
-        if (currentPost.author.id !== req.userId)
+        if (currentPost.author.id !== req.user.id)
             throw new CustomError('You are not allowed to update this post', 401);
 
         if (isContentUnchanged(currentPost.title, title, currentPost.content, content))
@@ -193,7 +197,7 @@ export async function updatePost(req, res, next) {
 
             const deleteUserTagsResult = await userTagsService.deleteUserTags(
                 postTagsIds,
-                req.userId,
+                req.user.id,
             );
 
             if (!deleteUserTagsResult.success)
@@ -222,7 +226,10 @@ export async function updatePost(req, res, next) {
             const { tagsIds: newTagsIds } = postPostTagsResult;
 
             if (newTagsIds) {
-                const putUsedTagsResult = await userTagsService.putUserTags(newTagsIds, req.userId);
+                const putUsedTagsResult = await userTagsService.putUserTags(
+                    newTagsIds,
+                    req.user.id,
+                );
 
                 if (!putUsedTagsResult.success) {
                     await postTagsService.deletePostTags(postId, newTagsIds);
@@ -259,7 +266,7 @@ export async function deletePost(req, res, next) {
 
         const { post: currentPost } = getPostResult;
 
-        if (currentPost.author.id !== req.userId)
+        if (currentPost.author.id !== req.user.id)
             throw new CustomError('You are not allowed to delete this post', 401);
 
         const getPostTagsResult = await postTagsService.getPostTags(postId);
@@ -277,14 +284,14 @@ export async function deletePost(req, res, next) {
 
             const deleteUserTagsResult = await userTagsService.deleteUserTags(
                 postTagsIds,
-                req.userId,
+                req.user.id,
             );
 
             if (!deleteUserTagsResult.success)
                 throw new CustomError('An error occurred while deleting the post', 500);
         }
 
-        const deletePostResult = await postService.deletePost(postId, req.userId);
+        const deletePostResult = await postService.deletePost(postId, req.user.id);
 
         if (!deletePostResult.success)
             throw new CustomError(deletePostResult.message, deletePostResult.status);

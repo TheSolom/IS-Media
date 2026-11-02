@@ -12,19 +12,19 @@ export async function getUserStories(req, res, next) {
 
         if (activeOnly === 'true') {
             getUserStoriesResult = await storyService.getActiveUserStories(
-                req.userId,
+                req.user.id,
                 lastId ?? 0,
                 limit ?? 10,
             );
         } else if (pastOnly === 'true') {
             getUserStoriesResult = await storyService.getPastUserStories(
-                req.userId,
+                req.user.id,
                 lastId ?? 0,
                 limit ?? 10,
             );
         } else {
             getUserStoriesResult = await storyService.getUserStories(
-                req.userId,
+                req.user.id,
                 lastId ?? 0,
                 limit ?? 10,
             );
@@ -50,7 +50,7 @@ export async function getFeedStories(req, res, next) {
         requestValidation(req);
 
         const getFeedStoriesResult = await storyService.getFeedStories(
-            req.userId,
+            req.user.id,
             lastId ?? 0,
             limit ?? 10,
         );
@@ -94,7 +94,7 @@ export async function postStory(req, res, next) {
     try {
         requestValidation(req);
 
-        const postStoryResult = await storyService.postStory(content, req.userId);
+        const postStoryResult = await storyService.postStory(content, req.user.id);
 
         if (!postStoryResult.success)
             throw new CustomError(postStoryResult.message, postStoryResult.status);
@@ -115,7 +115,7 @@ export async function deleteStory(req, res, next) {
     try {
         if (!storyId || storyId < 1) throw new CustomError('No valid story id is provided', 422);
 
-        const deleteStoryResult = await storyService.deleteStory(storyId, req.userId);
+        const deleteStoryResult = await storyService.deleteStory(storyId, req.user.id);
 
         if (!deleteStoryResult.success)
             throw new CustomError(deleteStoryResult.message, deleteStoryResult.status);

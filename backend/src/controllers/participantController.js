@@ -1,5 +1,5 @@
-import * as participantService from '../services/participantService.js';
 import * as conversationPermissionsService from '../services/conversationPermissionsService.js';
+import * as participantService from '../services/participantService.js';
 import CustomError from '../utils/errorHandling.js';
 import requestValidation from '../utils/requestValidation.js';
 
@@ -85,9 +85,9 @@ export async function postParticipant(req, res, next) {
     try {
         requestValidation(req);
 
-        if (userId !== req.userId) {
+        if (userId !== req.user.id) {
             const isAdmin = await participantService.validateAdminPrivileges(
-                req.userId,
+                req.user.id,
                 conversationId,
             );
 
@@ -110,7 +110,7 @@ export async function postParticipant(req, res, next) {
             throw new CustomError('You are not allowed to add members to this conversation', 401);
 
         const postParticipantResult = await participantService.postParticipant(
-            userId ?? req.userId,
+            userId ?? req.user.id,
             conversationId,
         );
 
@@ -132,9 +132,9 @@ export async function deleteParticipant(req, res, next) {
     try {
         requestValidation(req);
 
-        if (participantId !== req.userId) {
+        if (participantId !== req.user.id) {
             const isAdmin = await participantService.validateAdminPrivileges(
-                req.userId,
+                req.user.id,
                 conversationId,
             );
 
@@ -142,7 +142,7 @@ export async function deleteParticipant(req, res, next) {
         }
 
         const deleteParticipantResult = await participantService.deleteParticipant(
-            participantId ?? req.userId,
+            participantId ?? req.user.id,
             conversationId,
         );
 

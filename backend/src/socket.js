@@ -49,7 +49,7 @@ export default class SocketManager {
         SocketManager.#io.on('connection', async (socket) => {
             this.#socket = socket;
 
-            const { userId } = this.#socket.handshake.query;
+            const userId = this.#socket.user?.id || this.#socket.handshake.query.userId;
 
             if (userId) SocketManager.#userSocketMap[userId] = this.#socket.id;
 
@@ -62,7 +62,7 @@ export default class SocketManager {
 
     #onUserDisconnection() {
         this.#socket.on('disconnect', () => {
-            const { userId } = this.#socket.handshake.query;
+            const userId = this.#socket.user?.id || this.#socket.handshake.query.userId;
 
             if (userId) delete SocketManager.#userSocketMap[userId];
 

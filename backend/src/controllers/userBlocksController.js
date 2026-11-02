@@ -8,7 +8,7 @@ export async function getUserBlockStatus(req, res, next) {
     try {
         requestValidation(req);
 
-        const getUserBlocksResult = await userBlocksService.getUserBlockStatus(userId, req.userId);
+        const getUserBlocksResult = await userBlocksService.getUserBlockStatus(userId, req.user.id);
 
         if (!getUserBlocksResult.success)
             throw new CustomError(getUserBlocksResult.message, getUserBlocksResult.status);
@@ -32,7 +32,7 @@ export async function getUserBlocks(req, res, next) {
         requestValidation(req);
 
         const getUserBlocksResult = await userBlocksService.getUserBlocks(
-            req.userId,
+            req.user.id,
             lastId ?? 0,
             limit ?? 10,
         );
@@ -56,7 +56,7 @@ export async function postUserBlock(req, res, next) {
     try {
         requestValidation(req);
 
-        const postUserBlockResult = await userBlocksService.postUserBlock(blockedId, req.userId);
+        const postUserBlockResult = await userBlocksService.postUserBlock(blockedId, req.user.id);
 
         if (!postUserBlockResult.success)
             throw new CustomError(postUserBlockResult.message, postUserBlockResult.status);
@@ -78,7 +78,7 @@ export async function deleteUserBlock(req, res, next) {
 
         const deleteUserBlockResult = await userBlocksService.deleteUserBlock(
             blockedId,
-            req.userId,
+            req.user.id,
         );
 
         if (!deleteUserBlockResult.success)

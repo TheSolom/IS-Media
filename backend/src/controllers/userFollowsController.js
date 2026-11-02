@@ -8,7 +8,7 @@ export async function isUserFollowee(req, res, next) {
     try {
         requestValidation(req);
 
-        const isUserFolloweeResult = await userFollowsService.isUserFollowee(userId, req.userId);
+        const isUserFolloweeResult = await userFollowsService.isUserFollowee(userId, req.user.id);
 
         if (!isUserFolloweeResult.success)
             throw new CustomError(isUserFolloweeResult.message, isUserFolloweeResult.status);
@@ -32,7 +32,7 @@ export async function getUserFollowers(req, res, next) {
         requestValidation(req);
 
         const getUserFollowersResult = await userFollowsService.getUserFollowers(
-            userId ?? req.userId,
+            userId ?? req.user.id,
             lastId ?? 0,
             limit ?? 10,
         );
@@ -56,7 +56,7 @@ export async function isUserFollower(req, res, next) {
     try {
         requestValidation(req);
 
-        const isUserFollowerResult = await userFollowsService.isUserFollower(userId, req.userId);
+        const isUserFollowerResult = await userFollowsService.isUserFollower(userId, req.user.id);
 
         if (!isUserFollowerResult.success)
             throw new CustomError(isUserFollowerResult.message, isUserFollowerResult.status);
@@ -80,7 +80,7 @@ export async function getUserFollowings(req, res, next) {
         requestValidation(req);
 
         const getUserFollowingsResult = await userFollowsService.getUserFollowings(
-            userId ?? req.userId,
+            userId ?? req.user.id,
             lastId ?? 0,
             limit ?? 10,
         );
@@ -105,7 +105,7 @@ export async function getUserFollowSuggestions(req, res, next) {
         requestValidation(req);
 
         const getSuggestionsResult = await userFollowsService.getUserFollowSuggestions(
-            req.userId,
+            req.user.id,
             limit ?? 10,
         );
 
@@ -129,7 +129,7 @@ export async function postUserFollow(req, res, next) {
 
         const postUserFollowResult = await userFollowsService.postUserFollow(
             followeeId,
-            req.userId,
+            req.user.id,
         );
 
         if (!postUserFollowResult.success)
@@ -152,7 +152,7 @@ export async function deleteUserFollow(req, res, next) {
 
         const deleteUserFollowResult = await userFollowsService.deleteUserFollow(
             followeeId,
-            req.userId,
+            req.user.id,
         );
 
         if (!deleteUserFollowResult.success)

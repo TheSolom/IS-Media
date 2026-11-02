@@ -3,7 +3,7 @@ import { body, param, query } from 'express-validator';
 export const isUserFolloweeValidation = [
     param('userId', 'No valid follower id is provided')
         .isInt({ min: 1 })
-        .custom(async (value, { req }) => value === req.userId)
+        .custom(async (value, { req }) => value === req.user.id)
         .withMessage('You can not check yourself'),
 ];
 
@@ -14,7 +14,7 @@ export const getUserFollowersValidation = [
 export const isUserFollowerValidation = [
     param('userId', 'No valid followee id is provided')
         .isInt({ min: 1 })
-        .custom(async (value, { req }) => value === req.userId)
+        .custom(async (value, { req }) => value === req.user.id)
         .withMessage('You can not check yourself'),
 ];
 
@@ -25,13 +25,13 @@ export const getUserFollowingsValidation = [
 export const postUserFollowValidation = [
     body('followeeId', 'No valid followee id is provided')
         .isInt({ min: 1 })
-        .custom(async (value, { req }) => value === req.userId)
+        .custom(async (value, { req }) => value === req.user.id)
         .withMessage('You can not follow yourself'),
 ];
 
 export const deleteUserFollowValidation = [
     param('followeeId', 'No valid followee id is provided')
         .isInt({ min: 1 })
-        .custom(async (value, { req }) => value === req.userId)
+        .custom(async (value, { req }) => value === req.user.id)
         .withMessage('You can not unfollow yourself'),
 ];

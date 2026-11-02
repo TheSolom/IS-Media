@@ -1,9 +1,9 @@
 import * as conversationService from '../services/conversationService.js';
 import * as participantService from '../services/participantService.js';
-import CustomError from '../utils/errorHandling.js';
-import requestValidation from '../utils/requestValidation.js';
-import isContentUnchanged from '../utils/isContentUnchanged.js';
 import deleteMedia from '../utils/deleteMedia.js';
+import CustomError from '../utils/errorHandling.js';
+import isContentUnchanged from '../utils/isContentUnchanged.js';
+import requestValidation from '../utils/requestValidation.js';
 
 export async function searchConversation(req, res, next) {
     const { title } = req.params;
@@ -12,7 +12,7 @@ export async function searchConversation(req, res, next) {
     try {
         const searchConversationResult = await conversationService.searchConversation(
             title,
-            req.userId,
+            req.user.id,
             limit ?? '10',
         );
 
@@ -38,7 +38,7 @@ export async function getUserConversations(req, res, next) {
         requestValidation(req);
 
         const getUserConversationsResult = await conversationService.getUserConversations(
-            req.userId,
+            req.user.id,
             lastId ?? null,
             lastDate ?? null,
             limit ?? '10',
@@ -89,7 +89,7 @@ export async function getDMConversation(req, res, next) {
         if (!userId || userId < 1) throw new CustomError('No valid user id is provided', 422);
 
         const getDMConversationResult = await conversationService.getDMConversation(
-            req.userId,
+            req.user.id,
             userId,
         );
 
@@ -115,7 +115,7 @@ export async function postConversation(req, res, next) {
             title,
             image,
             type,
-            req.userId,
+            req.user.id,
         );
 
         if (!postConversationResult.success)
@@ -159,8 +159,8 @@ export async function updateConversation(req, res, next) {
             throw new CustomError('You are not allowed to update this conversation', 403);
 
         const isGroupAdmin =
-            currentConversation.creator_id === req.userId ||
-            (await participantService.isGroupAdmin(req.userId, conversationId));
+            currentConversation.creator_id === req.user.id ||
+            (await participantService.isGroupAdmin(req.user.id, conversationId));
 
         if (!isGroupAdmin || isGroupAdmin?.success) {
             if (isGroupAdmin?.status === 500)
@@ -217,8 +217,8 @@ export async function deleteConversation(req, res, next) {
             throw new CustomError('You are not allowed to delete this conversation', 403);
 
         const isGroupAdmin =
-            currentConversation.creator_id === req.userId ||
-            (await participantService.isGroupAdmin(req.userId, conversationId));
+            currentConversation.creator_id === req.user.id ||
+            (await participantService.isGroupAdmin(req.user.id, conversationId));
 
         if (!isGroupAdmin.success) {
             if (isGroupAdmin.status === 500)
@@ -229,7 +229,7 @@ export async function deleteConversation(req, res, next) {
 
         const deleteConversationResult = await conversationService.deleteConversation(
             conversationId,
-            req.userId,
+            req.user.id,
         );
 
         if (!deleteConversationResult.success)

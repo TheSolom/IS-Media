@@ -111,6 +111,11 @@ export const getPastParticipants = async (conversationId) => {
     }
 };
 
+export const validateAdminPrivileges = async (userId, conversationId) => {
+    const result = await isGroupAdmin(userId, conversationId);
+    return Boolean(result.success && result.isAdmin);
+};
+
 export const isGroupAdmin = async (userId, conversationId) => {
     const getParticipantResult = await getParticipant(userId, conversationId);
 
