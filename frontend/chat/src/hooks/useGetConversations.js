@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useSocketContext } from "../context/SocketContext";
+import { BASE_API_URL } from "../utils/api";
 
 const useGetConversations = () => {
 	const [loading, setLoading] = useState(false);
@@ -29,7 +30,7 @@ const useGetConversations = () => {
 		setLoading(true);
 
 		try {
-			let url = `http://localhost:5000/api/v1/conversations?limit=${LIMIT}`;
+			let url = `${BASE_API_URL}/conversations?limit=${LIMIT}`;
 			if (lastId && lastDate) {
 				url += `&lastId=${lastId}&lastDate=${lastDate}`;
 			}

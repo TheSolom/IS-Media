@@ -1,6 +1,7 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useAuthContext } from "../context/AuthContext";
+import { BASE_API_URL } from "../utils/api";
 
 const useCreateConversation = () => {
     const [loading, setLoading] = useState(false);
@@ -10,7 +11,7 @@ const useCreateConversation = () => {
         setLoading(true);
 
         try {
-            const res = await fetch(`http://localhost:5000/api/v1/conversations`, {
+            const res = await fetch(`${BASE_API_URL}/conversations`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
