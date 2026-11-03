@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import useConversation from '../zustand/useConversation';
+import { BASE_API_URL } from "../utils/api";
 
 const useGetParticipants = () => {
 	const {
@@ -16,7 +17,7 @@ const useGetParticipants = () => {
 		setLoading(true);
 
 		try {
-			const res = await fetch(`http://localhost:5000/api/v1/conversations/${selectedConversation.id}/participants`, {
+			const res = await fetch(`${BASE_API_URL}/conversations/${selectedConversation.id}/participants`, {
 				method: "GET",
 				credentials: "include",
 			});

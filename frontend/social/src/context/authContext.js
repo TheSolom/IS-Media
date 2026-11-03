@@ -1,4 +1,3 @@
-import axios from "axios";
 import {
   createContext,
   useCallback,
@@ -6,6 +5,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { makeRequest } from "../axios";
 
 export const AuthContext = createContext();
 
@@ -15,13 +15,7 @@ export const AuthContextProvider = ({ children }) => {
   );
 
   const login = useCallback(async (inputs) => {
-    const loginRes = await axios.post(
-      "http://localhost:5000/api/v1/auth/login",
-      inputs,
-      {
-        withCredentials: true,
-      },
-    );
+    const loginRes = await makeRequest.post("auth/login", inputs);
 
     if (!loginRes.data.success) {
       throw new Error(loginRes.data.message || "Login failed");
@@ -29,12 +23,7 @@ export const AuthContextProvider = ({ children }) => {
 
     const userId = loginRes.data.user?.id || loginRes.data.userId;
 
-    const userRes = await axios.get(
-      `http://localhost:5000/api/v1/users/${userId}/profile`,
-      {
-        withCredentials: true,
-      },
-    );
+    const userRes = await makeRequest.get(`users/${userId}/profile`);
 
     if (!userRes.data.success) {
       throw new Error(userRes.data.message || "Failed to fetch user profile");
@@ -44,13 +33,7 @@ export const AuthContextProvider = ({ children }) => {
   }, []);
 
   const guestLogin = useCallback(async () => {
-    const loginRes = await axios.post(
-      "http://localhost:5000/api/v1/auth/guest-login",
-      {},
-      {
-        withCredentials: true,
-      },
-    );
+    const loginRes = await makeRequest.post("auth/guest-login", {});
 
     if (!loginRes.data.success) {
       throw new Error(loginRes.data.message || "Guest login failed");
@@ -58,12 +41,7 @@ export const AuthContextProvider = ({ children }) => {
 
     const userId = loginRes.data.user?.id || loginRes.data.userId;
 
-    const userRes = await axios.get(
-      `http://localhost:5000/api/v1/users/${userId}/profile`,
-      {
-        withCredentials: true,
-      },
-    );
+    const userRes = await makeRequest.get(`users/${userId}/profile`);
 
     if (!userRes.data.success) {
       throw new Error(userRes.data.message || "Failed to fetch user profile");

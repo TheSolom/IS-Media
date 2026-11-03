@@ -2,7 +2,7 @@
     "name": "is-media",
     "version": "1.0.0",
     "description": "social media and realtime chatting website",
-    "main": "app.js",
+    "main": "server.js",
     "type": "module",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",

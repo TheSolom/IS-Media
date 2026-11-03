@@ -2,6 +2,7 @@ import { useState } from "react";
 import useConversation from "../zustand/useConversation";
 import toast from "react-hot-toast";
 import { useAuthContext } from "../context/AuthContext";
+import { BASE_API_URL } from "../utils/api";
 
 const useSendMessage = () => {
 	const [loading, setLoading] = useState(false);
@@ -20,12 +21,14 @@ const useSendMessage = () => {
 				parent_id: null,
 			};
 
-			const res = await fetch(`http://localhost:5000/api/v1/conversations/${selectedConversation.id}/messages`, {
+			const res = await fetch(`${BASE_API_URL}/conversations/${selectedConversation.id}/messages`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
 				},
-				body: JSON.stringify(sentMessage),
+				body: JSON.stringify({
+					...sentMessage,
+				}),
 				credentials: "include"
 			});
 

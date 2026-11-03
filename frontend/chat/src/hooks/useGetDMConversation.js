@@ -1,5 +1,6 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { BASE_API_URL } from "../utils/api";
 
 const useGetDMConversation = () => {
     const [loading, setLoading] = useState(false);
@@ -9,7 +10,7 @@ const useGetDMConversation = () => {
 
         try {
             const res = await fetch(
-                `http://localhost:5000/api/v1/conversations/users/${userId}`,
+                `${BASE_API_URL}/conversations/users/${userId}`,
                 {
                     method: 'GET',
                     credentials: 'include',

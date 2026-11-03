@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { BASE_API_URL } from "../utils/api";
 
-const useGetConversations = (title) => {
+const useSearchConversations = (title) => {
     const [loading, setLoading] = useState(false);
     const [conversations, setConversations] = useState([]);
 
@@ -10,7 +11,7 @@ const useGetConversations = (title) => {
             setLoading(true);
 
             try {
-                const res = await fetch(`http://localhost:5000/api/v1/conversations/${title}/search`, {
+                const res = await fetch(`${BASE_API_URL}/conversations/${title}/search`, {
                     method: "GET",
                     credentials: "include",
                 });
@@ -34,4 +35,4 @@ const useGetConversations = (title) => {
     return { loading, conversations };
 };
 
-export default useGetConversations;
+export default useSearchConversations;

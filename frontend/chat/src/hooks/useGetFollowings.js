@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { BASE_API_URL } from "../utils/api";
 
 const useGetFollowings = () => {
     const [loading, setLoading] = useState(false);
@@ -10,7 +11,7 @@ const useGetFollowings = () => {
             setLoading(true);
 
             try {
-                const res = await fetch(`http://localhost:5000/api/v1/users/followings`, {
+                const res = await fetch(`${BASE_API_URL}/users/followings`, {
                     method: "GET",
                     credentials: "include",
                 });

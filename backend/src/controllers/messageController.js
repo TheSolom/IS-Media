@@ -111,7 +111,7 @@ export async function postMessage(req, res, next) {
             throw new CustomError('An error occurred while sending the message', 500);
 
         const socketManager = SocketManager.getInstance();
-        socketManager.emitNewMessage(getConversationResult.message, conversationId);
+        socketManager?.emitNewMessage(getConversationResult.message, conversationId);
 
         res.status(201).json({
             success: true,
