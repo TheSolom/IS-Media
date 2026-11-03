@@ -5,6 +5,12 @@ import Login from './pages/login/Login';
 import { Toaster } from 'react-hot-toast';
 import { useAuthContext } from './context/AuthContext';
 
+const SOCIAL_APP_URL =
+    import.meta.env.VITE_SOCIAL_URL ||
+    (import.meta.env.PROD
+        ? 'https://is-media.vercel.app'
+        : 'http://localhost:3000');
+
 function App() {
     const { authUser } = useAuthContext();
 
@@ -26,7 +32,7 @@ function App() {
                             <Navigate to="/" />
                         ) : (
                             <a
-                                href="http://localhost:3000/register"
+                                href={`${SOCIAL_APP_URL}/register`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                             >
