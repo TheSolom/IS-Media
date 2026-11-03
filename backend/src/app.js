@@ -4,6 +4,7 @@ import express from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
 
+import pool from './configs/database.js';
 import bodyMiddleware from './middlewares/bodyMiddleware.js';
 import errorMiddleware from './middlewares/errorMiddleware.js';
 import authRoutes from './routes/authRoutes.js';
@@ -22,6 +23,8 @@ import userFollowsRoutes from './routes/userFollowsRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import userTagsRoutes from './routes/userTagsRoutes.js';
 import verificationRoutes from './routes/verificationRoutes.js';
+import { initializeDatabase } from './scripts/initDb.js';
+import { seedDatabase } from './scripts/seed.js';
 
 const app = express();
 
@@ -64,6 +67,33 @@ app.get(['/', '/api', '/api/v1'], (_req, res) => {
         author: 'Islam Ashraf',
         repo: 'https://github.com/TheSolom/IS-Media',
     });
+});
+
+let dbInitialized = false;
+let dbInitPromise = null;
+
+app.use(async (req, res, next) => {
+    if (!dbInitialized && req.path.startsWith('/api')) {
+        if (!dbInitPromise) {
+            dbInitPromise = (async () => {
+                try {
+                    const [tables] = await pool.query("SHOW TABLES LIKE 'users';");
+                    if (tables.length === 0) {
+                        console.log("Database tables missing. Running automatic schema initialization...");
+                        await initializeDatabase();
+                        await seedDatabase();
+                    }
+                    dbInitialized = true;
+                } catch (err) {
+                    console.error('Database auto-check error:', err.message);
+                } finally {
+                    dbInitPromise = null;
+                }
+            })();
+        }
+        await dbInitPromise;
+    }
+    next();
 });
 
 app.use('/api/v1/auth', authRoutes, verificationRoutes);

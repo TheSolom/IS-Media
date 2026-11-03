@@ -3,6 +3,8 @@ import isEmail from 'validator/lib/isEmail.js';
 
 import UserModel from '../models/userModel.js';
 import * as parseUtil from '../utils/parseUtil.js';
+import { initializeDatabase } from '../scripts/initDb.js';
+import { seedDatabase } from '../scripts/seed.js';
 
 import * as tokenService from './tokenService.js';
 
@@ -250,6 +252,12 @@ export const loginGuestUser = async () => {
         }
 
         if (!userRow.length) {
+            console.log('Demo account missing. Automatically seeding database...');
+            await seedDatabase();
+            [userRow] = await userModel.find({ username: 'demo_user' });
+        }
+
+        if (!userRow.length) {
             return {
                 success: false,
                 message: 'Demo account is not available. Please run database seeding.',
@@ -267,6 +275,26 @@ export const loginGuestUser = async () => {
             isGuest: true,
         };
     } catch (error) {
+        if (error.code === 'ER_NO_SUCH_TABLE') {
+            console.log("Database table missing ('users'). Initializing schema and seeding demo data...");
+            try {
+                await initializeDatabase();
+                await seedDatabase();
+                const [userRow] = await userModel.find({ username: 'demo_user' });
+                if (userRow.length) {
+                    const user = userRow[0];
+                    return {
+                        success: true,
+                        userId: user.id,
+                        username: user.username,
+                        email: user.email,
+                        isGuest: true,
+                    };
+                }
+            } catch (initErr) {
+                console.error('Failed to auto-initialize and seed database:', initErr);
+            }
+        }
         console.error(error);
         return {
             success: false,

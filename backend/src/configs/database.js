@@ -19,6 +19,7 @@ const pool = mysql.createPool({
     connectionLimit: process.env.VERCEL ? 2 : 10,
     queueLimit: 0,
     ssl: sslConfig,
+    multipleStatements: true,
 });
 
 if (!process.env.VERCEL) {
