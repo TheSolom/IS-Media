@@ -13,8 +13,6 @@
 # misc
 **.DS_Store
 **.env
-.env*.local
-.env.production
 .vercel
 
 npm-debug.log**
