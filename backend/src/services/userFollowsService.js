@@ -1,6 +1,5 @@
-import Denque from 'denque';
-
 import UserFollowersModel from '../models/userFollowersModel.js';
+import UserGraphModel from '../models/userGraphModel.js';
 
 export const isUserFollowee = async (followerId, userId) => {
     const userFollowersModel = new UserFollowersModel();
@@ -96,52 +95,62 @@ export const getUserFollowings = async (userId, lastId, limit) => {
 
 export const getUserFollowSuggestions = async (currentUserId, limit) => {
     const userFollowersModel = new UserFollowersModel();
+    const userGraphModel = new UserGraphModel();
 
     try {
-        const MAX_LIMIT = 1000;
-        const [followsRows] = await userFollowersModel.findAllFollows(MAX_LIMIT);
+        const parsedLimit = typeof limit === 'string' ? Number.parseInt(limit, 10) : limit || 10;
+        const parsedUserId =
+            typeof currentUserId === 'string' ? Number.parseInt(currentUserId, 10) : currentUserId;
 
-        const graph = new Map();
-
-        followsRows.forEach((follow) => {
-            const { user_id: userId, follower_id: followerId } = follow;
-
-            if (!graph.has(followerId)) graph.set(followerId, new Set());
-            graph.get(followerId).add(userId);
-        });
-
-        const visited = new Map();
-        const queue = new Denque();
-
-        visited.set(currentUserId, true);
-        queue.push(currentUserId);
-
-        const suggestedUsers = [];
-        while (!queue.isEmpty()) {
-            const current = queue.pop();
-            const neighbours = graph.get(current);
-
-            if (neighbours) {
-                // eslint-disable-next-line no-restricted-syntax
-                for (const neighbour of neighbours) {
-                    if (!visited.has(neighbour)) {
-                        visited.set(neighbour, true);
-                        queue.push(neighbour);
-                        suggestedUsers.push(neighbour);
-                    }
-                }
-            }
+        let graphCandidates = [];
+        try {
+            graphCandidates = await userGraphModel.findSuggestions(parsedUserId, parsedLimit);
+        } catch (graphErr) {
+            console.error(
+                'Neo4j graph suggestion lookup failed, falling back to relational:',
+                graphErr.message,
+            );
         }
 
-        const [usersRows] = await userFollowersModel.findValidFollowSuggestions(
-            suggestedUsers,
-            currentUserId,
-            limit,
-        );
+        const candidateIds = graphCandidates.map((c) => c.userId);
+        const [profileRows] = await userFollowersModel.findUsersWithProfileByIds(candidateIds);
+        const profilesMap = new Map(profileRows.map((p) => [p.id, p]));
+
+        const enrichedUsers = [];
+        graphCandidates.forEach((candidate) => {
+            const profile = profilesMap.get(candidate.userId);
+            if (profile) {
+                enrichedUsers.push({
+                    id: profile.id,
+                    username: profile.username,
+                    profile_picture: profile.profile_picture,
+                    mutual_count: candidate.mutualCount,
+                });
+            }
+        });
+
+        if (enrichedUsers.length < parsedLimit) {
+            const remaining = parsedLimit - enrichedUsers.length;
+            const excludeIds = enrichedUsers.map((u) => u.id);
+            const [fallbackRows] = await userFollowersModel.findPopularFollowFallback(
+                parsedUserId,
+                excludeIds,
+                remaining,
+            );
+
+            fallbackRows.forEach((row) => {
+                enrichedUsers.push({
+                    id: row.id,
+                    username: row.username,
+                    profile_picture: row.profile_picture,
+                    mutual_count: 0,
+                });
+            });
+        }
 
         return {
             success: true,
-            users: usersRows,
+            users: enrichedUsers,
         };
     } catch (error) {
         console.error(error);
@@ -168,6 +177,11 @@ export const postUserFollow = async (followeeId, followerId) => {
                 message: `Failed to follow the user with provided id '${followeeId}' `,
                 status: 500,
             };
+
+        const userGraphModel = new UserGraphModel();
+        await userGraphModel.addFollow(followerId, followeeId).catch((err) => {
+            console.error('Failed to sync follow to Neo4j:', err.message);
+        });
 
         return { success: true };
     } catch (error) {
@@ -210,6 +224,11 @@ export const deleteUserFollow = async (followeeId, followerId) => {
                 message: `No user found with provided id '${followeeId}' `,
                 status: 404,
             };
+
+        const userGraphModel = new UserGraphModel();
+        await userGraphModel.removeFollow(followerId, followeeId).catch((err) => {
+            console.error('Failed to sync unfollow to Neo4j:', err.message);
+        });
 
         return { success: true };
     } catch (error) {
