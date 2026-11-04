@@ -1,4 +1,5 @@
 import connection from '../configs/database.js';
+
 import BaseModel from './baseModel.js';
 
 export default class UserFollowersModel extends BaseModel {
@@ -116,20 +117,13 @@ export default class UserFollowersModel extends BaseModel {
                         ORDER BY u.is_verified DESC, followers_count DESC, u.created_at DESC
                         LIMIT ?`;
 
-        const params = [
-            userId,
-            userId,
-            userId,
-            userId,
-            ...safeExcludeIds,
-            limit.toString(),
-        ];
+        const params = [userId, userId, userId, userId, ...safeExcludeIds, limit.toString()];
 
         return connection.execute(query, params);
     }
 
     async findUsersWithProfileByIds(userIds) {
-        if (!userIds || !userIds.length) return [[]];
+        if (!userIds?.length) return [[]];
         const query = `SELECT id, username, profile_picture
                         FROM users
                         WHERE id IN (${userIds.map(() => '?').join(', ')})`;
