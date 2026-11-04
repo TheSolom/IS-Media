@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "neo4j": {
+      "url": "https://1c6145c9.mcp-instances.neo4j.io",
+      "serverUrl": "https://1c6145c9.mcp-instances.neo4j.io"
+    }
+  }
+}
