@@ -1,6 +1,7 @@
 import Denque from 'denque';
 
 import UserFollowersModel from '../models/userFollowersModel.js';
+import UserGraphModel from '../models/userGraphModel.js';
 
 export const isUserFollowee = async (followerId, userId) => {
     const userFollowersModel = new UserFollowersModel();
@@ -122,7 +123,6 @@ export const getUserFollowSuggestions = async (currentUserId, limit) => {
             const neighbours = graph.get(current);
 
             if (neighbours) {
-                // eslint-disable-next-line no-restricted-syntax
                 for (const neighbour of neighbours) {
                     if (!visited.has(neighbour)) {
                         visited.set(neighbour, true);
@@ -169,6 +169,11 @@ export const postUserFollow = async (followeeId, followerId) => {
                 status: 500,
             };
 
+        const userGraphModel = new UserGraphModel();
+        await userGraphModel.addFollow(followerId, followeeId).catch((err) => {
+            console.error('Failed to sync follow to Neo4j:', err.message);
+        });
+
         return { success: true };
     } catch (error) {
         console.error(error);
@@ -210,6 +215,11 @@ export const deleteUserFollow = async (followeeId, followerId) => {
                 message: `No user found with provided id '${followeeId}' `,
                 status: 404,
             };
+
+        const userGraphModel = new UserGraphModel();
+        await userGraphModel.removeFollow(followerId, followeeId).catch((err) => {
+            console.error('Failed to sync unfollow to Neo4j:', err.message);
+        });
 
         return { success: true };
     } catch (error) {

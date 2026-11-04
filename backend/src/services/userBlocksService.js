@@ -1,5 +1,6 @@
 import UserBlocksModel from '../models/userBlocksModel.js';
 import UserFollowersModel from '../models/userFollowersModel.js';
+import UserGraphModel from '../models/userGraphModel.js';
 
 export const getUserBlockStatus = async (userId1, userId2) => {
     const userBlocksModel = new UserBlocksModel();
@@ -63,6 +64,15 @@ export const postUserBlock = async (blockedId, blockerId) => {
 
         await userFollowersModel.DeleteFollowStatus(blockedId, blockerId);
 
+        const userGraphModel = new UserGraphModel();
+        await Promise.all([
+            userGraphModel.addBlock(blockerId, blockedId),
+            userGraphModel.removeFollow(blockerId, blockedId),
+            userGraphModel.removeFollow(blockedId, blockerId),
+        ]).catch((err) => {
+            console.error('Failed to sync block to Neo4j:', err.message);
+        });
+
         return { success: true };
     } catch (error) {
         console.error(error);
@@ -104,6 +114,11 @@ export const deleteUserBlock = async (blockedId, blockerId) => {
                 message: `No user found with provided id '${blockedId}' `,
                 status: 404,
             };
+
+        const userGraphModel = new UserGraphModel();
+        await userGraphModel.removeBlock(blockerId, blockedId).catch((err) => {
+            console.error('Failed to sync unblock to Neo4j:', err.message);
+        });
 
         return { success: true };
     } catch (error) {
