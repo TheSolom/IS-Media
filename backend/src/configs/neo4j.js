@@ -3,16 +3,15 @@ import neo4j from 'neo4j-driver';
 const uri = process.env.NEO4J_URI;
 const user = process.env.NEO4J_USERNAME;
 const password = process.env.NEO4J_PASSWORD;
-const defaultDatabase = process.env.NEO4J_DATABASE || 'neo4j';
+const defaultDatabase = process.env.NEO4J_DATABASE;
 
-let driver = null;
-
-if (uri && user && password) {
-    driver = neo4j.driver(uri, neo4j.auth.basic(user, password), {
-        maxConnectionPoolSize: 50,
-        connectionTimeout: 10000,
-    });
-}
+const driver =
+    uri && user && password
+        ? neo4j.driver(uri, neo4j.auth.basic(user, password), {
+              maxConnectionPoolSize: 50,
+              connectionTimeout: 10000,
+          })
+        : null;
 
 export const getNeo4jSession = (database = defaultDatabase) => {
     if (!driver) {
