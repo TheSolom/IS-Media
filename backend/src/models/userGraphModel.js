@@ -1,4 +1,5 @@
 import neo4j from 'neo4j-driver';
+
 import { getNeo4jSession } from '../configs/neo4j.js';
 
 export default class UserGraphModel {
@@ -112,7 +113,7 @@ export default class UserGraphModel {
     }
 
     async bulkSyncUsers(users) {
-        if (!users || !users.length) return;
+        if (!users?.length) return;
         const session = getNeo4jSession();
         try {
             const query = `
@@ -132,7 +133,7 @@ export default class UserGraphModel {
     }
 
     async bulkSyncFollows(follows) {
-        if (!follows || !follows.length) return;
+        if (!follows?.length) return;
         const session = getNeo4jSession();
         try {
             const query = `
@@ -153,7 +154,7 @@ export default class UserGraphModel {
     }
 
     async bulkSyncBlocks(blocks) {
-        if (!blocks || !blocks.length) return;
+        if (!blocks?.length) return;
         const session = getNeo4jSession();
         try {
             const query = `
