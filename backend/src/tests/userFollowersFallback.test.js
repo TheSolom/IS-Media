@@ -1,5 +1,6 @@
-import { describe, it, after } from 'node:test';
 import assert from 'node:assert/strict';
+import { describe, it, after } from 'node:test';
+
 import pool from '../configs/database.js';
 import UserFollowersModel from '../models/userFollowersModel.js';
 

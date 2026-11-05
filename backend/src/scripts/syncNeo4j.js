@@ -32,17 +32,15 @@ export async function syncNeo4j() {
 }
 
 if (process.argv[1]?.endsWith('syncNeo4j.js')) {
-    syncNeo4j()
-        .then((counts) => {
-            console.log('Summary:', counts);
-            process.exit(0);
-        })
-        .catch((err) => {
-            console.error('❌ Sync failed:', err);
-            process.exit(1);
-        })
-        .finally(async () => {
-            await closeNeo4j();
-            await pool.end();
-        });
+    try {
+        const counts = await syncNeo4j();
+        console.log('Summary:', counts);
+        process.exit(0);
+    } catch (err) {
+        console.error('❌ Sync failed:', err);
+        process.exit(1);
+    } finally {
+        await closeNeo4j();
+        await pool.end();
+    }
 }

@@ -1,5 +1,6 @@
-import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert/strict';
+import { describe, it, before, after } from 'node:test';
+
 import { initNeo4j, closeNeo4j } from '../configs/neo4j.js';
 import UserGraphModel from '../models/userGraphModel.js';
 
@@ -41,6 +42,16 @@ describe('UserGraphModel graph suggestions and edges', () => {
         await graphModel.bulkSyncUsers([{ id: 910, username: 'test_sync_user' }]);
         await graphModel.bulkSyncFollows([{ follower_id: 910, user_id: 902 }]);
         await graphModel.bulkSyncBlocks([{ user_id: 910, blocked_id: 903 }]);
+
+        const syncUser = await graphModel.findUser(910);
+        assert.ok(syncUser, 'Synced user should exist');
+        assert.equal(syncUser.username, 'test_sync_user');
+
+        const suggestions = await graphModel.findSuggestions(910, 5);
+        assert.ok(
+            !suggestions.some((s) => s.userId === 903),
+            'Blocked user should not appear in suggestions',
+        );
 
         // cleanup
         await graphModel.removeFollow(910, 902);

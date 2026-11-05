@@ -3,7 +3,7 @@ import neo4j from 'neo4j-driver';
 import { getNeo4jSession } from '../configs/neo4j.js';
 
 export default class UserGraphModel {
-    async findSuggestions(userId, limit = 10) {
+    async findSuggestions(userId, limit) {
         const session = getNeo4jSession();
         try {
             const query = `
@@ -24,12 +24,9 @@ export default class UserGraphModel {
                 LIMIT $limit
             `;
 
-            const parsedLimit = typeof limit === 'string' ? Number.parseInt(limit, 10) : limit;
-            const parsedUserId = typeof userId === 'string' ? Number.parseInt(userId, 10) : userId;
-
             const result = await session.run(query, {
-                userId: neo4j.int(parsedUserId),
-                limit: neo4j.int(parsedLimit),
+                userId: neo4j.int(userId),
+                limit: neo4j.int(limit),
             });
 
             return result.records.map((record) => {

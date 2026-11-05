@@ -93,18 +93,14 @@ export const getUserFollowings = async (userId, lastId, limit) => {
     }
 };
 
-export const getUserFollowSuggestions = async (currentUserId, limit) => {
+export const getUserFollowSuggestions = async (userId, limit) => {
     const userFollowersModel = new UserFollowersModel();
     const userGraphModel = new UserGraphModel();
 
     try {
-        const parsedLimit = typeof limit === 'string' ? Number.parseInt(limit, 10) : limit || 10;
-        const parsedUserId =
-            typeof currentUserId === 'string' ? Number.parseInt(currentUserId, 10) : currentUserId;
-
         let graphCandidates = [];
         try {
-            graphCandidates = await userGraphModel.findSuggestions(parsedUserId, parsedLimit);
+            graphCandidates = await userGraphModel.findSuggestions(userId, limit);
         } catch (graphErr) {
             console.error(
                 'Neo4j graph suggestion lookup failed, falling back to relational:',
@@ -129,11 +125,11 @@ export const getUserFollowSuggestions = async (currentUserId, limit) => {
             }
         });
 
-        if (enrichedUsers.length < parsedLimit) {
-            const remaining = parsedLimit - enrichedUsers.length;
+        if (enrichedUsers.length < limit) {
+            const remaining = limit - enrichedUsers.length;
             const excludeIds = enrichedUsers.map((u) => u.id);
             const [fallbackRows] = await userFollowersModel.findPopularFollowFallback(
-                parsedUserId,
+                userId,
                 excludeIds,
                 remaining,
             );

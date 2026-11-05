@@ -43,11 +43,7 @@ const allowedOrigins = new Set([
 app.use(
     cors({
         origin: (origin, callback) => {
-            if (
-                !origin ||
-                allowedOrigins.has(origin) ||
-                IS_MEDIA_VERCEL_REGEX.test(origin)
-            ) {
+            if (!origin || allowedOrigins.has(origin) || IS_MEDIA_VERCEL_REGEX.test(origin)) {
                 return callback(null, true);
             }
             return callback(null, false);
@@ -79,7 +75,9 @@ app.use(async (req, res, next) => {
                 try {
                     const [tables] = await pool.query("SHOW TABLES LIKE 'users';");
                     if (tables.length === 0) {
-                        console.log("Database tables missing. Running automatic schema initialization...");
+                        console.log(
+                            'Database tables missing. Running automatic schema initialization...',
+                        );
                         await initializeDatabase();
                         await seedDatabase();
                     }

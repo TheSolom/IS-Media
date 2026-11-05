@@ -1,5 +1,6 @@
-import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert/strict';
+import { describe, it, before, after } from 'node:test';
+
 import { getNeo4jSession, initNeo4j, closeNeo4j } from '../configs/neo4j.js';
 
 describe('Neo4j Config and Driver', () => {
